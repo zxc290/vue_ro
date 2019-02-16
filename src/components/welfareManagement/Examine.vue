@@ -1,10 +1,10 @@
 <template>
-
+    <div>jiancha</div>
 </template>
 
 <script>
     export default {
-        name: "Login"
+        name: "Examine"
     }
 </script>
 

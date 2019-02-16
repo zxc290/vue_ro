@@ -11,19 +11,27 @@
         <el-col>
           <h5>自定义颜色</h5>
           <el-menu
-            default-active="2"
+            default-active="1"
             class="el-menu-vertical-demo"
+            router
             @open="handleOpen"
             @close="handleClose">
-              <el-menu-item index="1">
-                <span slot="title">衮服开服管理</span>
+              <el-menu-item index="1" :route="{name: 'test'}">
+                <span slot="title">游戏服设置管理</span>
               </el-menu-item>
-            <el-menu-item index="2">
-              <span slot="title">推荐服设置管理</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <span slot="title">福利发放管理</span>
-            </el-menu-item>
+
+            <el-submenu index="2">
+              <template slot="title">
+                <i class="el-icon-menu"></i><span>福利发放管理</span>
+              </template>
+              <el-menu-item index="2-1" :route="{name: 'apply'}">申请</el-menu-item>
+              <el-menu-item index="2-2" :route="{name: 'examine'}">审批</el-menu-item>
+              <el-menu-item index="2-3">福利记录</el-menu-item>
+              <el-menu-item index="2-4">固定福利</el-menu-item>
+            </el-submenu>
+            <!--<el-menu-item index="2" :route="{name: 'welfare_payment_management'}">-->
+              <!--<span slot="title">福利发放管理</span>-->
+            <!--</el-menu-item>-->
           </el-menu>
         </el-col>
       </el-aside>
@@ -47,9 +55,21 @@
 </template>
 
 <script>
-    export default {
-        name: "Home"
+  export default {
+    name: "Home",
+    methods: {
+      handleOpen(key, keyPath) {
+        console.log(key, keyPath);
+      },
+      handleClose(key, keyPath) {
+        console.log(key, keyPath);
+      }
+    },
+    created() {
+      let test = sessionStorage.getItem('userName')
+      console.log(test);
     }
+  }
 </script>
 
 <style scoped>
