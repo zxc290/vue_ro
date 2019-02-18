@@ -67,6 +67,8 @@
     },
     created() {
       let test = sessionStorage.getItem('userName')
+      let isApplicant = sessionStorage.getItem('isApplicant')
+      console.log(isApplicant)
       console.log(test);
     }
   }

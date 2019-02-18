@@ -27,3 +27,13 @@ export const getWelfareList = () => {
 export const addWelfare = params => {
   return axios.post(`${base}/welfares/`, params)
 };
+
+// 撤销福利申请
+export const deleteWelfare = id => {
+  return axios.delete(`${base}/welfares/${id}/`)
+};
+
+// 修改福利申请
+export const modifyWelfare = params => {
+  return axios.put(`${base}/welfares/${params.id}/`, params)
+};

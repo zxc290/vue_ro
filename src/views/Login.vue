@@ -71,10 +71,13 @@
                   message: data.message,
                   showClose: true,
                 });
-                sessionStorage.setItem('userId', data.user_id);
-                sessionStorage.setItem('userName', data.username);
+                let userInfo = data.user_info;
+                sessionStorage.setItem('userId', userInfo.user_id);
+                sessionStorage.setItem('userName', userInfo.username);
+                sessionStorage.setItem('isApplicant', userInfo.is_applicant);
+                sessionStorage.setItem('isApprover', userInfo.is_approver);
                 sessionStorage.setItem('userToken', data.token);
-                this.$store.dispatch('setUser', data.username);
+                this.$store.dispatch('setUser', userInfo);
                 this.$store.dispatch('setToken', data.token);
                 // console.log(this.$store.state.isLogin);
                 this.$router.push({path:'/'})

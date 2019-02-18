@@ -30,7 +30,6 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => {
     console.log(response);
-    console.log('cccc')
   return response;
   },
   error => {

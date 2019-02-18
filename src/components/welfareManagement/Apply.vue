@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!--弹出新增申请表单-->
+    <el-button type="primary" style="float:left;margin-bottom: 20px" @click="clickAdd">新增申请</el-button>
     <!--福利申请列表-->
     <el-table
       :data="applyTableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
@@ -38,14 +40,15 @@
         label="是否固定发放"
         prop="is_regular"
         align="center"
-        :formatter="boolFormatter">
+        :formatter="boolFormatter"
+        min-width="100">
       </el-table-column>
       <el-table-column
         label="固定发放周期(天)"
         prop="regular_period"
         align="center"
         :formatter="nullFormatter"
-        min-width="100">
+        min-width="120">
       </el-table-column>
       <el-table-column
         label="申请数量"
@@ -68,7 +71,8 @@
       <el-table-column
         label="审核状态"
         prop="status"
-        align="center">
+        align="center"
+      :formatter="applyStatusFormatter">
       </el-table-column>
       <el-table-column
         label="审核人"
@@ -102,8 +106,9 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog title="新增申请" :visible.sync="newApplyFormVisible">
     <!--提交申请表单-->
-    <el-form ref="newApplyForm" :model="newApplyForm" :rules="newApplyFormRules" label-width="120px" :label-position="newApplyFormLabelPosition" style="width: 100%; margin-top: 30px">
+    <el-form ref="newApplyForm" :model="newApplyForm" :rules="newApplyFormRules" label-width="140px" :label-position="newApplyFormLabelPosition" style="width: 100%; margin-top: 30px">
       <el-form-item label="游戏平台" prop="pid">
         <el-select v-model="newApplyForm.pid" filterable placeholder="请选择游戏平台" @change="handleChangePlatform">
           <el-option v-for="(item, index) in platformOptions" :key="index" :label="item.pname" :value="item.pid"></el-option>
@@ -123,20 +128,20 @@
       <el-form-item label="是否固定发放">
         <el-switch v-model="newApplyForm.is_regular"></el-switch>
       </el-form-item>
-      <el-form-item label="固定发放周期(天)" v-show="newApplyForm.is_regular">
+      <el-form-item label="固定发放周期(天)" prop="regularPeriod" v-show="newApplyForm.is_regular">
         <el-input-number v-model="newApplyForm.regularPeriod" @change="handleChangeRegularPeriod" :min="1" :max="1000" label="描述文字"></el-input-number>
       </el-form-item>
-
       <el-form-item>
         <el-button type="primary" @click="submitForm('newApplyForm')">提交申请</el-button>
         <el-button type="danger" @click="resetForm('newApplyForm')">重置</el-button>
       </el-form-item>
     </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import {getPlatformOptions, getZoneOptions, getWelfareList, addWelfare} from '../../api/api';
+  import {getPlatformOptions, getZoneOptions, getWelfareList, addWelfare, deleteWelfare} from '../../api/api';
 
   export default {
     name: "Apply",
@@ -171,27 +176,46 @@
           amount: [
             { required: true, message: '请输入申请数量', trigger: 'blur' },
           ],
+          regularPeriod: [
+            { required: true, message: '请输入固定周期', trigger: 'blur' },
+          ]
         },
         // 申请表单标签对齐位置
         newApplyFormLabelPosition: 'left',
-
+        // 申请表单可见
+        newApplyFormVisible: false,
         applyTableData: [],
         search: '',
 
       }
     },
     methods: {
+      // 消息提示
+      alertMessage(message, type) {
+        this.$message({
+          showClose: true,
+          message: message,
+          type: type,
+        });
+      },
+      // 点击新增按钮
+      clickAdd() {
+        this.newApplyFormVisible = true;
+      },
       // 提交表单
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
             addWelfare(this.newApplyForm).then(res => {
-              console.log('xinzengchenggong')
+              if (res.status === 201) {
+                this.applyTableData.push(res.data);
+                this.alertMessage('添加申请成功', 'success');
+              }
+            }).catch(error => {
+              this.alertMessage(error.message, 'error');
             });
-          } else {
-            console.log('error submit!!');
-            return false;
           }
+          this.newApplyFormVisible = false;
         });
       },
       // 重置表单
@@ -210,19 +234,18 @@
       handleChangeRegularPeriod(value) {
         console.log(value);
       },
-
-
       handleDelete(index, row) {
-        console.log(index, row);
+        deleteWelfare(row.id).then(res => {
+          if (res.status === 204) {
+            this.applyTableData.pop(this.applyTableData.find(item => item.id === row.id));
+            this.alertMessage('撤销成功', 'success');
+          } else if (res.status === 202) {
+            this.alertMessage(res.data, 'warning')
+          }
+        }).catch(error => {
+          this.alertMessage(error.message, 'error');
+        })
       },
-      // // 平台id格式化
-      // platformFormatter(row, column, cellValue, index) {
-      //   return this.platformOptions.find(item => item.pid === cellValue).pname
-      // },
-      // // 区服id格式化
-      // zoneFormatter(row, column, cellValue, index) {
-      //   return this.zoneOptions.find(item => item.zid === cellValue)
-      // },
       // 日期格式化
       dateFormatter(row, column, cellValue, index) {
         return cellValue ? cellValue.replace('T', ' ') : '/';
@@ -234,6 +257,16 @@
       // 空值格式化
       nullFormatter(row, column, cellValue, index) {
         return cellValue ? cellValue : '/';
+      },
+      // 审核状态格式化
+      applyStatusFormatter(row, column, cellValue, index) {
+        if (cellValue === 0) {
+          return '审核中';
+        } else if (cellValue === 1) {
+          return '已通过';
+        } else if (cellValue === 2) {
+          return '未通过';
+        }
       }
     },
     created() {
