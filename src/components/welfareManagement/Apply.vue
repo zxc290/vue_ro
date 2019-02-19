@@ -4,91 +4,119 @@
     <el-button type="primary" style="float:left;margin-bottom: 20px" @click="clickAdd">新增申请</el-button>
     <!--福利申请列表-->
     <el-table
-      :data="applyTableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+      :data="applyTableData.filter(data => !search || data.role_name.toLowerCase().includes(search.toLowerCase()))"
       style="width: 100%" size="small" border>
       <el-table-column
         label="id"
         prop="id"
-      align="center">
+        align="center"
+        v-if="false">
       </el-table-column>
       <el-table-column
         label="平台id"
         prop="pid"
-        align="center">
+        align="center"
+        v-if="false">
       </el-table-column>
       <el-table-column
         label="平台名"
         prop="pname"
-        align="center">
+        align="center"
+        sortable>
       </el-table-column>
       <el-table-column
         label="区服id"
         prop="zid"
-        align="center">
+        align="center"
+        v-if="false">
       </el-table-column>
       <el-table-column
         label="区服名"
         prop="zname"
-        align="center">
+        align="center"
+        sortable>
       </el-table-column>
       <el-table-column
         label="角色名"
         prop="role_name"
-        align="center">
+        align="center"
+        sortable>
       </el-table-column>
       <el-table-column
         label="是否固定发放"
         prop="is_regular"
         align="center"
         :formatter="boolFormatter"
-        min-width="100">
+        min-width="100"
+        sortable>
       </el-table-column>
       <el-table-column
         label="固定发放周期(天)"
         prop="regular_period"
         align="center"
         :formatter="nullFormatter"
-        min-width="120">
+        min-width="120"
+        sortable>
       </el-table-column>
       <el-table-column
         label="申请数量"
         prop="amount"
-        align="center">
+        align="center"
+        sortable>
       </el-table-column>
       <el-table-column
-        label="申请人"
-        prop="applicant"
-        align="center">
+        label="申请人id"
+        prop="applicant_id"
+        align="center"
+        v-if="false">
       </el-table-column>
       <el-table-column
-        label="申请时间"
+        label="申请人姓名"
+        prop="applicant_name"
+        align="center"
+        min-width="100"
+        sortable>
+      </el-table-column>
+      <el-table-column
+        label="申请日期"
         prop="created_date"
         align="center"
         :formatter="dateFormatter"
         min-width="150"
-        show-overflow-tooltip>
+        show-overflow-tooltip
+        sortable>
       </el-table-column>
       <el-table-column
         label="审核状态"
         prop="status"
         align="center"
-      :formatter="applyStatusFormatter">
+        :formatter="applyStatusFormatter"
+        sortable>
       </el-table-column>
       <el-table-column
-        label="审核人"
-        prop="approver"
+        label="审核人id"
+        prop="approver_id"
         align="center"
-        :formatter="nullFormatter">
+        :formatter="nullFormatter"
+        v-if="false">
+      </el-table-column>
+      <el-table-column
+        label="审核人姓名"
+        prop="approver_name"
+        align="center"
+        :formatter="nullFormatter"
+        min-width="100"
+        sortable>
       </el-table-column>
       <el-table-column
         label="审核日期"
-        prop="approver_date"
+        prop="approve_date"
         align="center"
         :formatter="dateFormatter"
         min-width="150"
-        show-overflow-tooltip>
+        show-overflow-tooltip
+        sortable>
       </el-table-column>
-
       <el-table-column
         min-width="200"
         align="center">
@@ -122,14 +150,17 @@
       <el-form-item label="角色名" prop="role_name">
         <el-input v-model="newApplyForm.role_name" placeholder="请输入角色名"></el-input>
       </el-form-item>
+      <el-form-item label="申请人id" prop="applicant_id" v-show="false">
+        <el-input v-model="newApplyForm.applicant_id" placeholder="请输入申请人名"></el-input>
+      </el-form-item>
       <el-form-item label="申请数量" prop="amount">
-        <el-input-number v-model="newApplyForm.amount" :min="1" :max="1000" label="描述文字"></el-input-number>
+        <el-input v-model.number="newApplyForm.amount" placeholder="请输入0-999间的整数"></el-input>
       </el-form-item>
       <el-form-item label="是否固定发放">
-        <el-switch v-model="newApplyForm.is_regular"></el-switch>
+        <el-switch v-model="newApplyForm.is_regular" @change="isRegularChange"></el-switch>
       </el-form-item>
-      <el-form-item label="固定发放周期(天)" prop="regularPeriod" v-show="newApplyForm.is_regular">
-        <el-input-number v-model="newApplyForm.regularPeriod" @change="handleChangeRegularPeriod" :min="1" :max="1000" label="描述文字"></el-input-number>
+      <el-form-item label="固定发放周期(天)" prop="regular_period" v-show="newApplyForm.is_regular">
+        <el-input v-model.number="newApplyForm.regular_period" placeholder="请输入0-999间的整数"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('newApplyForm')">提交申请</el-button>
@@ -141,7 +172,7 @@
 </template>
 
 <script>
-  import {getPlatformOptions, getZoneOptions, getWelfareList, addWelfare, deleteWelfare} from '../../api/api';
+  import { getPlatformOptions, getZoneOptions, getWelfareList, addWelfare, deleteWelfare } from '../../api/api';
 
   export default {
     name: "Apply",
@@ -154,13 +185,12 @@
         // 申请表单
         newApplyForm: {
           pid: '',
-          pname: '',
           zid: '',
-          zname: '',
           role_name: '',
+          applicant_id: 0,
           amount: '',
           is_regular: false,
-          regularPeriod: 1,
+          regular_period: 0,
         },
         // 申请表单验证规则
         newApplyFormRules: {
@@ -174,10 +204,14 @@
             { required: true, message: '请输入游戏角色名', trigger: 'blur' },
           ],
           amount: [
-            { required: true, message: '请输入申请数量', trigger: 'blur' },
+            { required: true, message: '请输入申请数量' },
+            { type: 'number', message: '必须为数字值' },
+            { pattern:/^\d{1,3}$/, message: '输入范围1-999'}
           ],
-          regularPeriod: [
-            { required: true, message: '请输入固定周期', trigger: 'blur' },
+          regular_period: [
+            { required: true, message: '请输入固定周期' },
+            { type: 'number', message: '必须为数字值' },
+            { pattern:/^\d{1,3}$/, message: '输入范围1-999'}
           ]
         },
         // 申请表单标签对齐位置
@@ -198,14 +232,27 @@
           type: type,
         });
       },
+      tokenExpired(message) {
+        this.$message({
+          showClose: true,
+          message: message,
+          type: 'error'
+        });
+        // this.$router.push({path: '/login'})
+      },
       // 点击新增按钮
       clickAdd() {
         this.newApplyFormVisible = true;
+      },
+      isRegularChange(value) {
+        this.newApplyForm.regularPeriod = 0;
       },
       // 提交表单
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
+            console.log(sessionStorage.getItem('userId'));
+            this.newApplyForm.applicant_id = Number(sessionStorage.getItem('userId'));
             addWelfare(this.newApplyForm).then(res => {
               if (res.status === 201) {
                 this.applyTableData.push(res.data);
@@ -214,8 +261,8 @@
             }).catch(error => {
               this.alertMessage(error.message, 'error');
             });
+            this.newApplyFormVisible = false;
           }
-          this.newApplyFormVisible = false;
         });
       },
       // 重置表单
@@ -235,16 +282,28 @@
         console.log(value);
       },
       handleDelete(index, row) {
-        deleteWelfare(row.id).then(res => {
-          if (res.status === 204) {
-            this.applyTableData.pop(this.applyTableData.find(item => item.id === row.id));
-            this.alertMessage('撤销成功', 'success');
-          } else if (res.status === 202) {
-            this.alertMessage(res.data, 'warning')
-          }
-        }).catch(error => {
-          this.alertMessage(error.message, 'error');
-        })
+        if (row.status !== 0) {
+          this.alertMessage('只能撤销审核中的申请', 'warning');
+          return false
+        }
+        this.$confirm('撤销申请后将无法恢复, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteWelfare(row.id).then(res => {
+            if (res.status === 204) {
+              this.applyTableData = this.applyTableData.filter(item => item.id !== row.id);
+              this.alertMessage('撤销成功', 'success');
+            } else if (res.status === 202) {
+              this.alertMessage(res.data, 'warning')
+            }
+          }).catch(error => {
+            this.alertMessage(error.message, 'error');
+          })
+        }).catch(() => {
+
+        });
       },
       // 日期格式化
       dateFormatter(row, column, cellValue, index) {
@@ -272,13 +331,16 @@
     created() {
       getWelfareList().then(res => {
         let data = res.data;
-        console.log(data)
-        this.applyTableData = data;
+        this.applyTableData = data.filter(item => item.applicant_id === Number(sessionStorage.getItem('userId')) && item.status === 0);
+      }).catch(error => {
+
       });
       getPlatformOptions().then(res => {
         let data = res.data;
         this.platformOptions = data.filter(item => item.gid === 50 && item.pid > 0);
-      })
+      }).catch(error => {
+
+      });
     }
   }
 

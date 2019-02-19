@@ -7,6 +7,7 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import store from './vuex/store'
+import { Message } from 'element-ui';
 
 
 Vue.use(ElementUI);
@@ -37,7 +38,16 @@ axios.interceptors.response.use(
       switch (error.response.status) {
         case 400: error.message = '请求错误(400)' ; break;
         case 401: error.message = '未授权，请重新登录(401)'; break;
-        case 403: error.message = '拒绝访问(403)'; break;
+        case 403:
+          error.message = '拒绝访问(403)';
+          router.push({path: '/login'});
+          Message({
+            showClose: true,
+            message: 'token验证过期, 请重新登录',
+            type: 'error'
+          });
+          break;
+
         case 404: error.message = '请求出错(404)'; break;
         case 408: error.message = '请求超时(408)'; break;
         case 500: error.message = '服务器错误(500)'; break;

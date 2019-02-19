@@ -9,7 +9,7 @@
       <el-aside width="300px" style="border: 1px solid red">
         <!--<el-row>页面切换路由</el-row>-->
         <el-col>
-          <h5>自定义颜色</h5>
+          <h3>导航菜单</h3>
           <el-menu
             default-active="1"
             class="el-menu-vertical-demo"
@@ -24,10 +24,11 @@
               <template slot="title">
                 <i class="el-icon-menu"></i><span>福利发放管理</span>
               </template>
-              <el-menu-item index="2-1" :route="{name: 'apply'}">申请</el-menu-item>
-              <el-menu-item index="2-2" :route="{name: 'examine'}">审批</el-menu-item>
-              <el-menu-item index="2-3">福利记录</el-menu-item>
-              <el-menu-item index="2-4">固定福利</el-menu-item>
+              <el-menu-item index="2-1" :route="{name: 'apply'}" v-if="isApplicant">申请</el-menu-item>
+              <el-menu-item index="2-2" :route="{name: 'examine'}" v-if="isApprover">审批</el-menu-item>
+              <el-menu-item index="2-3" :route="{name: 'record'}">福利记录</el-menu-item>
+              <!--<el-menu-item index="2-4" :route="{name: 'role_management'}" v-if="isRoleManager">角色管理</el-menu-item>-->
+              <el-menu-item index="2-4" :route="{name: 'role_management'}">角色管理</el-menu-item>
             </el-submenu>
             <!--<el-menu-item index="2" :route="{name: 'welfare_payment_management'}">-->
               <!--<span slot="title">福利发放管理</span>-->
@@ -57,6 +58,16 @@
 <script>
   export default {
     name: "Home",
+    data() {
+      return {
+        // 可申请
+        isApplicant: false,
+        // 可审批
+        isApprover: false,
+        // 可编辑玩家角色
+        isRoleManager: false,
+      }
+    },
     methods: {
       handleOpen(key, keyPath) {
         console.log(key, keyPath);
@@ -66,10 +77,8 @@
       }
     },
     created() {
-      let test = sessionStorage.getItem('userName')
-      let isApplicant = sessionStorage.getItem('isApplicant')
-      console.log(isApplicant)
-      console.log(test);
+      this.isApplicant = sessionStorage.getItem('isApplicant');
+      this.isApprover = sessionStorage.getItem('isApprover');
     }
   }
 </script>

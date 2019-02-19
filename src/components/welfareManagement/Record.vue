@@ -1,7 +1,7 @@
 <template>
-  <!--福利审批列表-->
+  <!--福利记录列表-->
   <el-table
-    :data="examineTableData.filter(data => !search || data.role_name.toLowerCase().includes(search.toLowerCase()))"
+    :data="welfareRecordTableData.filter(data => !search || data.role_name.toLowerCase().includes(search.toLowerCase()))"
     style="width: 100%" size="small" border>
     <el-table-column
       label="id"
@@ -123,69 +123,32 @@
           size="mini"
           placeholder="输入关键字搜索"/>
       </template>
-      <template slot-scope="scope">
-        <el-button
-          size="mini"
-          type="primary"
-          @click="handleExamine(scope.$index, scope.row, 1)">批准</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="handleExamine(scope.$index, scope.row, 2)">否决</el-button>
-      </template>
+      <!--<template slot-scope="scope">-->
+        <!--<el-button-->
+          <!--size="mini"-->
+          <!--type="primary"-->
+          <!--@click="handleExamine(scope.$index, scope.row, 1)">批准</el-button>-->
+        <!--<el-button-->
+          <!--size="mini"-->
+          <!--type="danger"-->
+          <!--@click="handleExamine(scope.$index, scope.row, 2)">否决</el-button>-->
+      <!--</template>-->
     </el-table-column>
   </el-table>
 </template>
 
 <script>
-  import { getWelfareList, modifyWelfare } from '../../api/api';
+  import { getWelfareList } from '../../api/api';
 
     export default {
-      name: "Examine",      data() {
+      name: "Record",
+      data() {
         return {
-          examineTableData: [],
+          welfareRecordTableData: [],
           search: '',
         }
       },
-
       methods: {
-        // 消息提示
-        alertMessage(message, type) {
-          this.$message({
-            showClose: true,
-            message: message,
-            type: type,
-          });
-        },
-        // 审批
-        handleExamine(index, row, status) {
-          if (row.status !== 0) {
-            this.alertMessage('只能对审核中的申请做修改', 'warning');
-            return false
-          }
-          this.$confirm('修改申请状态后将无法修改, 是否继续?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            // 修改json参数
-            Object.assign(row, {'status': status, 'approver_id': Number(sessionStorage.getItem('userId'))});
-            modifyWelfare(row).then(res => {
-              // Object.assign(this.examineTableData.find(item => item.id === row.id), res.data);
-              this.examineTableData = this.examineTableData.filter(item => item.id !== res.data.id);
-            }).catch(error => {
-
-            });
-            // 消息提示
-            if (status === 1) {
-              this.alertMessage('已批准', 'success');
-            } else if (status === 2) {
-              this.alertMessage('已否决', 'success');
-            }
-          }).catch(() => {
-
-          });
-        },
         // 日期格式化
         dateFormatter(row, column, cellValue, index) {
           return cellValue ? cellValue.replace('T', ' ') : '/';
@@ -211,7 +174,13 @@
       },
       created() {
         getWelfareList().then(res => {
-          this.examineTableData = res.data.filter(item => item.status === 0);
+          if (sessionStorage.getItem('isApplicant')) {
+            this.welfareRecordTableData = res.data.filter(item => item.status !== 0 && item.applicant_id === Number(sessionStorage.getItem('userId')));
+          }
+          if (sessionStorage.getItem('isApprover')) {
+            this.welfareRecordTableData = res.data.filter(item => item.status !== 0);
+          }
+          // this.welfareRecordTableData = res.data.filter(item => item.status !== 0);
         }).catch(error => {
 
         });

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-  import {login} from "../api/api";
+  import { login } from "../api/api";
 
   export default {
     name: "Login",
@@ -76,6 +76,7 @@
                 sessionStorage.setItem('userName', userInfo.username);
                 sessionStorage.setItem('isApplicant', userInfo.is_applicant);
                 sessionStorage.setItem('isApprover', userInfo.is_approver);
+                sessionStorage.setItem('isRoleManager', userInfo.is_role_manager);
                 sessionStorage.setItem('userToken', data.token);
                 this.$store.dispatch('setUser', userInfo);
                 this.$store.dispatch('setToken', data.token);
@@ -96,7 +97,7 @@
           }
         });
       }
-    }
+    },
   }
 </script>
 

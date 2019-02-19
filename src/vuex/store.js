@@ -12,6 +12,7 @@ const store = new Vuex.Store({
     currentUser: null,
     isApplicant: false,
     isApprover: false,
+    isRoleManager: false,
     isLogin: false,
     token: '',
   },

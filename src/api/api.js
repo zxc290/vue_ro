@@ -37,3 +37,8 @@ export const deleteWelfare = id => {
 export const modifyWelfare = params => {
   return axios.put(`${base}/welfares/${params.id}/`, params)
 };
+
+// 获取人员角色列表
+export const getRolePlayerList = () => {
+  return axios.get(`${base}/role_players/`)
+};
