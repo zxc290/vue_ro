@@ -37,6 +37,7 @@
       label="角色名"
       prop="role_name"
       align="center"
+      show-overflow-tooltip
       sortable>
     </el-table-column>
     <el-table-column
@@ -68,7 +69,7 @@
       v-if="false">
     </el-table-column>
     <el-table-column
-      label="申请人姓名"
+      label="申请人"
       prop="applicant_name"
       align="center"
       min-width="100"
@@ -98,7 +99,7 @@
       v-if="false">
     </el-table-column>
     <el-table-column
-      label="审核人姓名"
+      label="审核人"
       prop="approver_name"
       align="center"
       :formatter="nullFormatter"

@@ -2,11 +2,11 @@
   <el-container>
     <el-header>
       <el-row>
-        <el-col style="border: 1px solid red;"><h3>Ro运营后台管理</h3></el-col>
+        <el-col><h3>Ro运营后台管理</h3></el-col>
       </el-row>
     </el-header>
     <el-container>
-      <el-aside width="300px" style="border: 1px solid red">
+      <el-aside width="300px">
         <!--<el-row>页面切换路由</el-row>-->
         <el-col>
           <h3>导航菜单</h3>
@@ -16,19 +16,18 @@
             router
             @open="handleOpen"
             @close="handleClose">
-              <el-menu-item index="1" :route="{name: 'test'}">
-                <span slot="title">游戏服设置管理</span>
-              </el-menu-item>
+              <!--<el-menu-item index="1" :route="{name: 'test'}">-->
+                <!--<span slot="title">游戏服设置管理</span>-->
+              <!--</el-menu-item>-->
 
-            <el-submenu index="2">
+            <el-submenu index="1">
               <template slot="title">
                 <i class="el-icon-menu"></i><span>福利发放管理</span>
               </template>
               <el-menu-item index="2-1" :route="{name: 'apply'}" v-if="isApplicant">申请</el-menu-item>
               <el-menu-item index="2-2" :route="{name: 'examine'}" v-if="isApprover">审批</el-menu-item>
-              <el-menu-item index="2-3" :route="{name: 'record'}">福利记录</el-menu-item>
-              <!--<el-menu-item index="2-4" :route="{name: 'role_management'}" v-if="isRoleManager">角色管理</el-menu-item>-->
-              <el-menu-item index="2-4" :route="{name: 'role_management'}">角色管理</el-menu-item>
+              <el-menu-item index="2-3" :route="{name: 'record'}" v-if="isRecordChecker">福利记录</el-menu-item>
+              <el-menu-item index="2-4" :route="{name: 'role_management'}" v-if="isRoleManager">角色管理</el-menu-item>
             </el-submenu>
             <!--<el-menu-item index="2" :route="{name: 'welfare_payment_management'}">-->
               <!--<span slot="title">福利发放管理</span>-->
@@ -36,7 +35,7 @@
           </el-menu>
         </el-col>
       </el-aside>
-      <el-main style="border: 1px solid red">
+      <el-main>
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -66,19 +65,23 @@
         isApprover: false,
         // 可编辑玩家角色
         isRoleManager: false,
+        // 可查看福利记录
+        isRecordChecker: false,
       }
     },
     methods: {
       handleOpen(key, keyPath) {
-        console.log(key, keyPath);
+
       },
       handleClose(key, keyPath) {
-        console.log(key, keyPath);
+        // console.log(key, keyPath);
       }
     },
     created() {
       this.isApplicant = sessionStorage.getItem('isApplicant');
       this.isApprover = sessionStorage.getItem('isApprover');
+      this.isRoleManager = sessionStorage.getItem('isRoleManager');
+      this.isRecordChecker = sessionStorage.getItem('isRecordChecker');
     }
   }
 </script>

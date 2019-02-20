@@ -30,7 +30,7 @@ axios.interceptors.request.use(
 // http response拦截器
 axios.interceptors.response.use(
   response => {
-    console.log(response);
+    // console.log(response);
   return response;
   },
   error => {

@@ -37,6 +37,7 @@
       label="角色名"
       prop="role_name"
       align="center"
+      show-overflow-tooltip
       sortable>
     </el-table-column>
     <el-table-column
@@ -68,7 +69,7 @@
       v-if="false">
     </el-table-column>
     <el-table-column
-      label="申请人姓名"
+      label="申请人"
       prop="applicant_name"
       align="center"
       min-width="100"
@@ -98,7 +99,7 @@
       v-if="false">
     </el-table-column>
     <el-table-column
-      label="审核人姓名"
+      label="审核人"
       prop="approver_name"
       align="center"
       :formatter="nullFormatter"
@@ -123,16 +124,6 @@
           size="mini"
           placeholder="输入关键字搜索"/>
       </template>
-      <!--<template slot-scope="scope">-->
-        <!--<el-button-->
-          <!--size="mini"-->
-          <!--type="primary"-->
-          <!--@click="handleExamine(scope.$index, scope.row, 1)">批准</el-button>-->
-        <!--<el-button-->
-          <!--size="mini"-->
-          <!--type="danger"-->
-          <!--@click="handleExamine(scope.$index, scope.row, 2)">否决</el-button>-->
-      <!--</template>-->
     </el-table-column>
   </el-table>
 </template>

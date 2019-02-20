@@ -40,6 +40,7 @@
         label="角色名"
         prop="role_name"
         align="center"
+        show-overflow-tooltip
         sortable>
       </el-table-column>
       <el-table-column
@@ -71,7 +72,7 @@
         v-if="false">
       </el-table-column>
       <el-table-column
-        label="申请人姓名"
+        label="申请人"
         prop="applicant_name"
         align="center"
         min-width="100"
@@ -101,7 +102,7 @@
         v-if="false">
       </el-table-column>
       <el-table-column
-        label="审核人姓名"
+        label="审核人"
         prop="approver_name"
         align="center"
         :formatter="nullFormatter"
@@ -134,7 +135,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog title="新增申请" :visible.sync="newApplyFormVisible">
+    <el-dialog title="新增申请" :visible.sync="newApplyFormVisible" width="30%" center>
     <!--提交申请表单-->
     <el-form ref="newApplyForm" :model="newApplyForm" :rules="newApplyFormRules" label-width="140px" :label-position="newApplyFormLabelPosition" style="width: 100%; margin-top: 30px">
       <el-form-item label="游戏平台" prop="pid">
@@ -143,12 +144,14 @@
         </el-select>
       </el-form-item>
       <el-form-item label="游戏区服" prop="zid">
-        <el-select v-model="newApplyForm.zid" filterable placeholder="请选择游戏区服">
+        <el-select v-model="newApplyForm.zid" filterable placeholder="请选择游戏区服" @change="handleChangeZone">
           <el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.sname" :value="item.sid"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="角色名" prop="role_name">
-        <el-input v-model="newApplyForm.role_name" placeholder="请输入角色名"></el-input>
+        <el-select v-model="newApplyForm.role_name" filterable placeholder="请选择游戏角色名">
+          <el-option v-for="(item, index) in roleNameOptions" :key="index" :label="item.role_name" :value="item.role_name"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="申请人id" prop="applicant_id" v-show="false">
         <el-input v-model="newApplyForm.applicant_id" placeholder="请输入申请人名"></el-input>
@@ -172,7 +175,7 @@
 </template>
 
 <script>
-  import { getPlatformOptions, getZoneOptions, getWelfareList, addWelfare, deleteWelfare } from '../../api/api';
+  import { getPlatformOptions, getZoneOptions, getRolePlayerList, getWelfareList, addWelfare, deleteWelfare } from '../../api/api';
 
   export default {
     name: "Apply",
@@ -182,6 +185,8 @@
         platformOptions: [],
         // 区服选项
         zoneOptions: [],
+        // 角色名选项
+        roleNameOptions: [],
         // 申请表单
         newApplyForm: {
           pid: '',
@@ -220,7 +225,6 @@
         newApplyFormVisible: false,
         applyTableData: [],
         search: '',
-
       }
     },
     methods: {
@@ -231,14 +235,6 @@
           message: message,
           type: type,
         });
-      },
-      tokenExpired(message) {
-        this.$message({
-          showClose: true,
-          message: message,
-          type: 'error'
-        });
-        // this.$router.push({path: '/login'})
       },
       // 点击新增按钮
       clickAdd() {
@@ -251,7 +247,7 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            console.log(sessionStorage.getItem('userId'));
+            // console.log(sessionStorage.getItem('userId'));
             this.newApplyForm.applicant_id = Number(sessionStorage.getItem('userId'));
             addWelfare(this.newApplyForm).then(res => {
               if (res.status === 201) {
@@ -271,15 +267,19 @@
       },
       // 改变平台选项
       handleChangePlatform(value) {
-        let platformId = value;
         // 获取当前平台下的区服选项
         getZoneOptions().then(res => {
           let data = res.data;
-          this.zoneOptions = data.filter(item => item.gid ===50 && item.pid === platformId);
+          this.zoneOptions = data.filter(item => item.gid === 50 && item.pid === this.newApplyForm.pid);
         })
       },
-      handleChangeRegularPeriod(value) {
-        console.log(value);
+      handleChangeZone(value) {
+        // 获取区服，平台下的角色名选项
+        getRolePlayerList().then(res => {
+          let data = res.data;
+          // console.log(data)
+          this.roleNameOptions = data.filter(item => item.pid === this.newApplyForm.pid && item.zid === this.newApplyForm.zid)
+        });
       },
       handleDelete(index, row) {
         if (row.status !== 0) {

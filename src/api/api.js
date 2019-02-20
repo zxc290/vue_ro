@@ -42,3 +42,18 @@ export const modifyWelfare = params => {
 export const getRolePlayerList = () => {
   return axios.get(`${base}/role_players/`)
 };
+
+// 新增人员角色
+export const addRolePlayer = params => {
+  return axios.post(`${base}/role_players/`, params)
+};
+
+// 编辑人员角色
+export const editRolePlayer = params => {
+  return axios.put(`${base}/role_players/${params.id}/`, params)
+};
+
+// 删除人员角色
+export const deleteRolePlayer = id => {
+  return axios.delete(`${base}/role_players/${id}/`)
+};
