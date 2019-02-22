@@ -5,8 +5,8 @@ import Login from '../views/Login'
 import Apply from '../components/welfareManagement/Apply'
 import Examine from '../components/welfareManagement/Examine'
 import Record from '../components/welfareManagement/Record'
-import test from '../components/gameServerManagement/test'
 import RoleManagement from "../components/welfareManagement/RolePlayer";
+import Setting from "../components/gameServerManagement/Setting";
 
 Vue.use(Router);
 
@@ -17,14 +17,11 @@ const router = new Router({
       name: 'Home',
       component: Home,
       children: [
+        { path: 'server_management/setting', name: 'setting', component: Setting, props: true },
         { path: 'welfare_management/apply', name: 'apply', component: Apply, props: true },
         { path: 'welfare_management/examine', name: 'examine', component: Examine, props: true },
         { path: 'welfare_management/record', name: 'record', component: Record, props: true },
         { path: 'welfare_management/role_management', name: 'role_management', component: RoleManagement, props: true },
-
-        { path: 'test', name: 'test', component: test, props: true },
-        // {path: 'welfare_payment_management', name: 'welfare_payment_management', component: Page2, props: true},
-        // {path: 'welfare_payment_management', name: 'welfare_payment_management', component: Page2, props: true},
       ]
     },
     {

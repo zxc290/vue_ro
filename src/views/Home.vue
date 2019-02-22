@@ -19,8 +19,16 @@
               <!--<el-menu-item index="1" :route="{name: 'test'}">-->
                 <!--<span slot="title">游戏服设置管理</span>-->
               <!--</el-menu-item>-->
-
             <el-submenu index="1">
+              <template slot="title">
+                <i class="el-icon-menu"></i><span>游戏服务器管理</span>
+              </template>
+              <el-menu-item index="1-1" :route="{name: 'setting'}" v-if="isApplicant">基本设置</el-menu-item>
+              <!--<el-menu-item index="2-2" :route="{name: 'examine'}" v-if="isApprover">审批</el-menu-item>-->
+              <!--<el-menu-item index="2-3" :route="{name: 'record'}" v-if="isRecordChecker">福利记录</el-menu-item>-->
+              <!--<el-menu-item index="2-4" :route="{name: 'role_management'}" v-if="isRoleManager">角色管理</el-menu-item>-->
+            </el-submenu>
+            <el-submenu index="2">
               <template slot="title">
                 <i class="el-icon-menu"></i><span>福利发放管理</span>
               </template>

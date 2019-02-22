@@ -2,6 +2,7 @@ import axios from 'axios'
 
 
 let base = 'http://127.0.0.1:8000';
+// let base = 'http://data.7cool.xgd666.com:10050';
 
 // 请求登录
 export const login = params => {
@@ -56,4 +57,9 @@ export const editRolePlayer = params => {
 // 删除人员角色
 export const deleteRolePlayer = id => {
   return axios.delete(`${base}/role_players/${id}/`)
+};
+
+// 获取服务器管理列表
+export const getServerManagementList = () => {
+  return axios.get(`${base}/server_managements/`)
 };

@@ -216,7 +216,7 @@
         }).catch(error => {
 
         });
-      }
+      },
     }
 </script>
 
