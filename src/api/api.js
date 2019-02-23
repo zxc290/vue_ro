@@ -59,7 +59,18 @@ export const deleteRolePlayer = id => {
   return axios.delete(`${base}/role_players/${id}/`)
 };
 
+// 获取渠道列表
+export const getChannelList = () => {
+  return axios.get(`${base}/app_channels/`)
+};
+
+// 获取服务器渠道列表
+export const getServerChannelList = () => {
+  return axios.get(`${base}/app_server_channels/`)
+};
+
 // 获取服务器管理列表
 export const getServerManagementList = () => {
   return axios.get(`${base}/server_managements/`)
 };
+
