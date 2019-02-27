@@ -64,6 +64,7 @@
             this.logining = true;
             // NProgress.start();
             let loginParams = { username: this.loginForm.account, password: this.loginForm.checkPass };
+
             login(loginParams).then(res => {
               let data = res.data;
               if (data.code === 1) {
@@ -91,6 +92,8 @@
                 });
               }
               this.logining = false;
+            }).catch(error => {
+
             });
           } else {
             // console.log('提交失败，请按照规则填写');

@@ -23,7 +23,9 @@
               <template slot="title">
                 <i class="el-icon-menu"></i><span>游戏服务器管理</span>
               </template>
-              <el-menu-item index="1-1" :route="{name: 'setting'}" v-if="isApplicant">基本设置</el-menu-item>
+              <el-menu-item index="1-1" :route="{name: 'zone_list'}" v-if="isApplicant">开区列表</el-menu-item>
+              <el-menu-item index="1-2" :route="{name: 'open_zone'}" v-if="isApplicant">开区设置</el-menu-item>
+              <el-menu-item index="1-3" :route="{name: 'recommend'}" v-if="isApplicant">推荐设置</el-menu-item>
               <!--<el-menu-item index="2-2" :route="{name: 'examine'}" v-if="isApprover">审批</el-menu-item>-->
               <!--<el-menu-item index="2-3" :route="{name: 'record'}" v-if="isRecordChecker">福利记录</el-menu-item>-->
               <!--<el-menu-item index="2-4" :route="{name: 'role_management'}" v-if="isRoleManager">角色管理</el-menu-item>-->

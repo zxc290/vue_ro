@@ -6,7 +6,9 @@ import Apply from '../components/welfareManagement/Apply'
 import Examine from '../components/welfareManagement/Examine'
 import Record from '../components/welfareManagement/Record'
 import RoleManagement from "../components/welfareManagement/RolePlayer";
-import Setting from "../components/gameServerManagement/Setting";
+import ZoneList from "../components/gameServerManagement/ZoneList";
+import Recommend from "../components/gameServerManagement/Recommend"
+import OpenZone from "../components/gameServerManagement/OpenZone";
 
 Vue.use(Router);
 
@@ -17,7 +19,9 @@ const router = new Router({
       name: 'Home',
       component: Home,
       children: [
-        { path: 'server_management/setting', name: 'setting', component: Setting, props: true },
+        { path: 'server_management/zone_list', name: 'zone_list', component: ZoneList, props: true },
+        { path: 'server_management/open_zone', name: 'open_zone', component: OpenZone, props: true },
+        { path: 'server_management/recommend', name: 'recommend', component: Recommend, props: true },
         { path: 'welfare_management/apply', name: 'apply', component: Apply, props: true },
         { path: 'welfare_management/examine', name: 'examine', component: Examine, props: true },
         { path: 'welfare_management/record', name: 'record', component: Record, props: true },
