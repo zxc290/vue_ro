@@ -462,8 +462,8 @@
           });
         },
         // 选择包
-        handleChangePackage() {
-
+        handleChangePackage(value) {
+          console.log(value)
         },
         // 查询服务器列表
         onSubmit(formName) {
@@ -562,7 +562,7 @@
             // this.packageOptions = data.reduce((all, next) => all.some(item => item.appid === next.appid) ? all : [...all, next], [])
             this.packageOptions = data;
           }).catch(error => {
-
+            console.log(error)
           });
         }
       },
