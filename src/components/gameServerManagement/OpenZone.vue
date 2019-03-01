@@ -2,31 +2,31 @@
   <!--<div>-->
     <!--<el-form :inline="true" :model="selectForm">-->
       <!--<el-form-item label="渠道">-->
-        <!--<el-select v-model="openForm.cid" clearable placeholder="请选择游戏渠道">-->
+        <!--<el-select v-model="planForm.cid" clearable placeholder="请选择游戏渠道">-->
           <!--<el-option v-for="(item, index) in channelOptions" :key="index" :label="item.cname" :value="item.cid"></el-option>-->
         <!--</el-select>-->
       <!--</el-form-item>-->
       <!--<el-form-item label="包">-->
-        <!--<el-select v-model="openForm.appid" clearable placeholder="请选择游戏包">-->
+        <!--<el-select v-model="planForm.appid" clearable placeholder="请选择游戏包">-->
           <!--<el-option v-for="(item, index) in packageOptions" :key="index" :label="item.appid" :value="item.appid"></el-option>-->
         <!--</el-select>-->
       <!--</el-form-item>-->
     <!--</el-form>-->
 
-    <!--<el-form ref="openForm" :model="openForm">-->
+    <!--<el-form ref="planForm" :model="planForm">-->
 
       <!--&lt;!&ndash;<el-form-item label="渠道">&ndash;&gt;-->
-      <!--&lt;!&ndash;<el-select v-model="openForm.cid" clearable placeholder="请选择游戏渠道">&ndash;&gt;-->
+      <!--&lt;!&ndash;<el-select v-model="planForm.cid" clearable placeholder="请选择游戏渠道">&ndash;&gt;-->
       <!--&lt;!&ndash;<el-option v-for="(item, index) in channelOptions" :key="index" :label="item.cname" :value="item.cid"></el-option>&ndash;&gt;-->
       <!--&lt;!&ndash;</el-select>&ndash;&gt;-->
       <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
       <!--&lt;!&ndash;<el-form-item label="包">&ndash;&gt;-->
-      <!--&lt;!&ndash;<el-select v-model="openForm.appid" clearable placeholder="请选择游戏包">&ndash;&gt;-->
+      <!--&lt;!&ndash;<el-select v-model="planForm.appid" clearable placeholder="请选择游戏包">&ndash;&gt;-->
       <!--&lt;!&ndash;<el-option v-for="(item, index) in packageOptions" :key="index" :label="item.appid" :value="item.appid"></el-option>&ndash;&gt;-->
       <!--&lt;!&ndash;</el-select>&ndash;&gt;-->
       <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
       <!--<el-form-item-->
-        <!--v-for="(plan, index) in openForm.plans"-->
+        <!--v-for="(plan, index) in planForm.plans"-->
         <!--:label="'开区方式' + index"-->
         <!--:key="plan.key"-->
         <!--:prop="plan.open_type"-->
@@ -40,7 +40,7 @@
         <!--</el-select>-->
       <!--</el-form-item>-->
       <!--<el-form-item-->
-        <!--v-for="(plan, index) in openForm.plans"-->
+        <!--v-for="(plan, index) in planForm.plans"-->
         <!--:label="'开区值' + index"-->
         <!--:key="plan.key"-->
         <!--:prop="plan.open_type_value"-->
@@ -51,13 +51,13 @@
         <!--<el-input v-model="plan.open_type_value"></el-input>-->
       <!--</el-form-item>-->
       <!--<el-form-item>-->
-        <!--&lt;!&ndash;<el-button type="primary" @click="submitForm('openForm')">保存</el-button>&ndash;&gt;-->
+        <!--&lt;!&ndash;<el-button type="primary" @click="submitForm('planForm')">保存</el-button>&ndash;&gt;-->
         <!--&lt;!&ndash;<el-button @click="addPlan">新增计划</el-button>&ndash;&gt;-->
         <!--<el-button @click.prevent="removePlan(plan)">删除</el-button>-->
         <!--&lt;!&ndash;<el-button @click="resetForm('dynamicValidateForm')">重置</el-button>&ndash;&gt;-->
       <!--</el-form-item>-->
     <!--</el-form>-->
-    <!--<el-button type="primary" @click="submitForm('openForm')">保存</el-button>-->
+    <!--<el-button type="primary" @click="submitForm('planForm')">保存</el-button>-->
     <!--<el-button @click="addPlan">新增计划</el-button>-->
   <!--</div>-->
   <div>
@@ -77,19 +77,21 @@
       </el-form-item>
     </el-form>
 
-    <el-form :model="openForm" :inline="true">
-      <div v-for="(plan, index) in openForm.plans" :key="plan.key">
-        <el-form-item label="id" v-if="false">
-          <el-input readonly v-model="plan.id"></el-input>
-        </el-form-item>
-        <el-form-item label="zoneidx" v-if="false">
-          <el-input readonly v-model="plan.zoneidx"></el-input>
-        </el-form-item>
-        <el-form-item label="区服名">
-          <el-input readonly v-model="plan.zonename"></el-input>
-          <!--<el-select v-model="plan.zoneidx" clearable placeholder="请选择区服">-->
-            <!--<el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.zonename" :value="item.zoneidx"></el-option>-->
-          <!--</el-select>-->
+    <el-form ref="planForm" :model="planForm" :inline="true">
+      <div v-for="(plan, index) in planForm.plans" :key="plan.key">
+        <!--<el-form-item label="id">-->
+          <!--<el-input readonly v-model="plan.id"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="zoneidx">-->
+          <!--<el-input readonly v-model="plan.zoneidx"></el-input>-->
+        <!--</el-form-item>-->
+        <el-form-item label="区服名" :prop="'plans.' + index + '.id'" :rules="[
+      { required: true, message: '选择区服', trigger: 'change' },
+    ]">
+          <!--<el-input readonly v-model="plan.zonename"></el-input>-->
+          <el-select v-model="plan.id" placeholder="请选择区服" @change="handleChangeZone(plan)">
+            <el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.zonename" :value="item.id"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="开区类型">
           <el-select v-model="plan.open_type" clearable placeholder="请选择开区类型" @change="handleChangeOpenType(plan)">
@@ -115,19 +117,19 @@
         </el-form-item>
       </div>
       <!--<el-form-item label="同步到区">-->
-      <!--<el-switch v-model="openForm.by_zone"></el-switch>-->
+      <!--<el-switch v-model="planForm.by_zone"></el-switch>-->
       <!--</el-form-item>-->
     <el-form-item>
       <el-button @click="addPlan">新增计划</el-button>
-      <!--<el-button type="primary" @click="submitForm('openForm')">保存</el-button>-->
-      <el-button type="primary" @click="submitForm">保存</el-button>
+      <!--<el-button type="primary" @click="submitForm('planForm')">保存</el-button>-->
+      <el-button type="primary" @click="submitForm('planForm')">保存</el-button>
     </el-form-item>
   </el-form>
   </div>
 </template>
 
 <script>
-import { getServerManagementList, getChannelList, getAppPackageList, updateAppServerChannel, setOpen } from '../../api/api';
+import { getServerManagementList, getChannelList, getAppPackageList, updateAppServerChannel, setOpen, deleteOpen } from '../../api/api';
   export default {
       name: "OpenZone",
       data() {
@@ -136,8 +138,11 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
           channelOptions: [],
           // 包选项
           packageOptions: [],
-          unsettingzone: [],
-          // 区服选项
+          // // 未计划区
+          // unplannedZone: [],
+          // // 已计划区
+          // plannedZone: [],
+          // 区选项
           zoneOptions: [],
           // 推荐选项
           recommendOptions: [
@@ -156,7 +161,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
             appid: '',
           },
           // 开区表单
-          openForm: {
+          planForm: {
             gid: 50,
             cid: '',
             appid: '',
@@ -175,91 +180,155 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
         }
       },
     methods: {
-        // 改变渠道
-        handleChangeChannel (value) {
-          if (!value) {
-            // 清空
-            this.packageOptions = [];
-            this.queryForm.appid = '';
-            return false
-          }
-          // 获取包选项
-          getAppPackageList().then(res => {
-            let data = res.data;
-            // this.packageOptions = data.reduce((all, next) => all.some(item => item.appid === next.appid) ? all : [...all, next], [])
-            this.packageOptions = data;
-          }).catch(error => {
+      // 消息提示
+      alertMessage(message, type) {
+        this.$message({
+          showClose: true,
+          message: message,
+          type: type,
+        });
+      },
+      // 改变渠道
+      handleChangeChannel (value) {
+        if (!value) {
+          // 清空
+          this.packageOptions = [];
+          this.queryForm.appid = '';
+          return false
+        }
+        // 获取包选项
+        getAppPackageList().then(res => {
+          let data = res.data;
+          // this.packageOptions = data.reduce((all, next) => all.some(item => item.appid === next.appid) ? all : [...all, next], [])
+          this.packageOptions = data;
+        }).catch(error => {
 
-          });
-        },
-        // 新增计划
-        addPlan() {
-          this.openForm.plans.push({
-            open_type: '',
-            open_user: '',
-            open_time: '',
+        });
+      },
+      // 新增计划
+      addPlan() {
+        if (this.planForm.plans.length >= this.zoneOptions.length) {
+          this.alertMessage('已无可设置计划的区服', 'warning')
+        } else {
+          console.log(this.planForm)
+          let selectedArray = this.planForm.plans.map(item => item.id);
+          console.log(selectedArray)
+          this.planForm.plans.push({
+            'id': '',
+            'zoneidx': '',
+            'zonename':'',
+            'open_type': '',
+            'open_user': '',
+            'open_time': '',
+            'planned': false,
+            // open_type: '',
+            // open_user: '',
+            // open_time: '',
             key: Date.now()
           });
-        },
-        // 移除计划
-        removePlan(plan) {
-          let index = this.openForm.plans.indexOf(plan);
-          if (index !== -1) {
-            this.openForm.plans.splice(index, 1)
-          }
-        },
-        // 改变开区类型
-        handleChangeOpenType(plan) {
-          console.log(plan)
-          // if (value === 1) {
-          //
-          // }
-        },
-        onQuery() {
-          getServerManagementList(this.queryForm).then(res => {
-            let data = res.data;
-            this.zoneOptions = data;
-            // 清空当前表单，并插入查询数据
-            this.openForm.plans = [];
-            data.map(item => {
-              if (item.open_type === 1) {
-                // Object.assign(item, {'open_user': item.open_type_value, 'open_time': ''});
-                this.openForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': item.open_type_value, 'open_time': ''});
-              } else if (item.open_type === 2) {
-                // Object.assign(item, {'open_user': '', 'open_time': item.open_type_value});
-                this.openForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': '', 'open_time': item.open_type_value});
-              }
-              // this.openForm.plans.push(result)
-            });
-            console.log(this.openForm.plans)
-          }).catch(error => {
-            console.log(error)
-          });
-          // console.log(this.openForm.plans)
-        },
-        submitForm() {
-          this.openForm.appid = this.queryForm.appid;
-          this.openForm.cid = this.queryForm.cid;
-          this.openForm.plans.map(item => item.open_time /= 1000);
-          console.log(this.openForm)
         }
-    },
-    created() {
-      getChannelList().then(res => {
-        // let data = res.data;
-        this.channelOptions = res.data;
-        // this.queryForm.cid = this.channelOptions[0].cid;
-        // getServerManagementList(this.queryForm).then(res => {
-        //   let data = res.data;
-        //   console.log(data)
-        //   this.serverManagementTableData = data;
-        // }).catch(error => {
-        //   console.log(error)
-        // });
-      }).catch(error => {
-        console.log(error)
-      });
-    }
+      },
+      // 移除计划
+      removePlan(plan) {
+        let index = this.planForm.plans.indexOf(plan);
+        if (index !== -1) {
+          this.planForm.plans.splice(index, 1);
+          // 前端新增计划，未保存
+          if (plan.unplanned) {
+              console.log('wei')
+          } else {
+              console.log('yi')
+            deleteOpen(plan).then(res => {
+              let data = res.data;
+              console.log(data)
+            }).catch(error => {
+
+            });
+          }
+        }
+      },
+      handleChangeZone(plan) {
+        console.log(plan)
+        if (this.planForm.plans.filter(item => item.id === plan.id).length > 1) {
+          this.alertMessage('当前区服已存在计划任务，无法重复创建', 'error')
+          plan.id = '';
+        } else {
+          plan.zoneidx = this.zoneOptions.find(item => item.id === plan.id).zoneidx;
+          plan.zonename = this.zoneOptions.find(item => item.id === plan.id).zonename;
+
+        }
+        // console.log(plan)
+      },
+      // 改变开区类型
+      handleChangeOpenType(plan) {
+        console.log(plan)
+        // if (value === 1) {
+        //
+        // }
+      },
+      onQuery() {
+        getServerManagementList(this.queryForm).then(res => {
+          let data = res.data;
+          this.zoneOptions = data.map(item => {
+            return item;
+          });
+          console.log(this.zoneOptions)
+          console.log('34414')
+          // // 已计划区
+          // this.plannedZone = data.filter(item => item.open_type !== null);
+          // // 未计划区
+          // this.unplannedZone = data.filter(item => item.open_type === null);
+          // 清空当前表单，并插入查询数据
+          this.planForm.plans = [];
+          this.zoneOptions.map(item => {
+            if (item.open_type === 1) {
+              // Object.assign(item, {'open_user': item.open_type_value, 'open_time': ''});
+              this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': item.open_type_value, 'open_time': ''});
+            } else if (item.open_type === 2) {
+              // Object.assign(item, {'open_user': '', 'open_time': item.open_type_value});
+              this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': '', 'open_time': item.open_type_value});
+            }
+
+            // this.planForm.plans.push(result)
+          });
+        }).catch(error => {
+          console.log(error)
+        });
+        // console.log(this.planForm.plans)
+      },
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            alert('submit!');
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      // submitForm() {
+      //   this.planForm.appid = this.queryForm.appid;
+      //   this.planForm.cid = this.queryForm.cid;
+      //   this.planForm.plans.map(item => item.open_time /= 1000);
+      //   console.log(this.planForm)
+      // }
+  },
+  created() {
+    getChannelList().then(res => {
+      // let data = res.data;
+      this.channelOptions = res.data;
+      // this.queryForm.cid = this.channelOptions[0].cid;
+      // getServerManagementList(this.queryForm).then(res => {
+      //   let data = res.data;
+      //   console.log(data)
+      //   this.serverManagementTableData = data;
+      // }).catch(error => {
+      //   console.log(error)
+      // });
+    }).catch(error => {
+      console.log(error)
+    });
+  }
   }
 </script>
 

@@ -89,5 +89,10 @@ export const getServerManagementList = params => {
 
 // 设置开区
 export const setOpen = params => {
-  return axios.post(`${base}/set_open/`, params)
+  return axios.post(`${base}/set_open_plan/`, params)
+};
+
+// 删除开区
+export const deleteOpen = params => {
+  return axios.post(`${base}/delete_open_plan/`, params)
 };
