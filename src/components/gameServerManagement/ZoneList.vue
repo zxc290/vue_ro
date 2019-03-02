@@ -147,7 +147,7 @@
 </template>
 
 <script>
-  import { getServerManagementList, getChannelList, getAppPackageList, updateAppServerChannel, setOpen } from '../../api/api';
+  import { getServerManagementList, getChannelList, getAppPackageList, updateAppServerChannel } from '../../api/api';
 
     export default {
       name: "ZoneList",
@@ -519,32 +519,32 @@
 
 
         // 提交编辑表单
-        submitForm(formName) {
-          this.$refs.serverManagementTableData.clearSelection();
-          this.$refs[formName].validate((valid) => {
-            this[formName].autoOpenTime = this[formName].autoOpenTime / 1000;
-            if (valid) {
-              updateAppServerChannel(this[formName]).then(res => {
-                let data = res.data;
-                console.log(data);
-                // this.serverManagementTableData
-                if (this[formName].by_zone) {
-                  // Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data);
-                  Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data.find(item => item.id === this[formName].id));
-                  this.alertMessage('修改多条服务器成功', 'success');
-                } else {
-                  Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data);
-                  this.alertMessage('修改单条服务器成功', 'success');
-                }
-              }).catch(error => {
-                this.alertMessage('修改服务器失败', 'error');
-              });
-              this.editFormVisible = false;
-            } else {
-              console.log('shibai')
-            }
-          });
-        },
+        // submitForm(formName) {
+        //   this.$refs.serverManagementTableData.clearSelection();
+        //   this.$refs[formName].validate((valid) => {
+        //     this[formName].autoOpenTime = this[formName].autoOpenTime / 1000;
+        //     if (valid) {
+        //       updateAppServerChannel(this[formName]).then(res => {
+        //         let data = res.data;
+        //         console.log(data);
+        //         // this.serverManagementTableData
+        //         if (this[formName].by_zone) {
+        //           // Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data);
+        //           Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data.find(item => item.id === this[formName].id));
+        //           this.alertMessage('修改多条服务器成功', 'success');
+        //         } else {
+        //           Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data);
+        //           this.alertMessage('修改单条服务器成功', 'success');
+        //         }
+        //       }).catch(error => {
+        //         this.alertMessage('修改服务器失败', 'error');
+        //       });
+        //       this.editFormVisible = false;
+        //     } else {
+        //       console.log('shibai')
+        //     }
+        //   });
+        // },
 
         // 点击包下拉菜单
         handleClickSelectPackage(value) {

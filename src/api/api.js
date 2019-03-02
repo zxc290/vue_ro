@@ -75,6 +75,15 @@ export const updateAppServerChannel = params => {
   return axios.put(`${base}/app_server_channels/${params.id}/`, params)
 };
 
+// 更新开区计划
+export const setOpenPlan = params => {
+  return axios.post(`${base}/set_open_plan/${params.id}/`, params)
+};
+
+// 更新开区计划
+export const deleteOpenPlan = params => {
+  return axios.post(`${base}/delete_open_plan/${params.id}/`, params)
+};
 
 // // 获取服务器渠道列表
 // export const getAppPackageList = () => {
@@ -87,12 +96,4 @@ export const getServerManagementList = params => {
   return axios.get(`${base}/server_managements?cid=${params.cid}&appid=${params.appid}`)
 };
 
-// 设置开区
-export const setOpen = params => {
-  return axios.post(`${base}/set_open_plan/`, params)
-};
 
-// 删除开区
-export const deleteOpen = params => {
-  return axios.post(`${base}/delete_open_plan/`, params)
-};

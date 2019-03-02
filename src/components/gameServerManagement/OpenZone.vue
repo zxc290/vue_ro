@@ -86,22 +86,28 @@
           <!--<el-input readonly v-model="plan.zoneidx"></el-input>-->
         <!--</el-form-item>-->
         <el-form-item label="区服名" :prop="'plans.' + index + '.id'" :rules="[
-      { required: true, message: '选择区服', trigger: 'change' },
+      { required: true, message: '请选择区服', trigger: 'change' },
     ]">
           <!--<el-input readonly v-model="plan.zonename"></el-input>-->
           <el-select v-model="plan.id" placeholder="请选择区服" @change="handleChangeZone(plan)">
             <el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.zonename" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="开区类型">
+        <el-form-item label="开区类型" :prop="'plans.' + index + '.open_type'" :rules="[
+      { required: true, message: '请选择开区类型', trigger: 'change' },
+    ]">
           <el-select v-model="plan.open_type" clearable placeholder="请选择开区类型" @change="handleChangeOpenType(plan)">
             <el-option v-for="(item, index) in openTypeOptions" :key="index" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="开区人数" v-show="plan.open_type === 1">
+        <el-form-item label="开区人数" v-show="plan.open_type === 1" :prop="'plans.' + index + '.open_user'" :rules="[
+              { required: true, message: '请输入开区人数', trigger: 'change' },
+        ]">
           <el-input v-model.number="plan.open_user" placeholder="请输入开区人数"></el-input>
         </el-form-item>
-        <el-form-item label="开区时间" v-show="plan.open_type === 2">
+        <el-form-item label="开区时间" v-show="plan.open_type === 2" :prop="'plans.' + index + '.open_time'" :rules="[
+          { required: true, message: '请输入开区时间', trigger: 'change' },
+        ]">
           <el-date-picker
             v-model="plan.open_time"
             type="datetime"
@@ -113,6 +119,7 @@
           <el-switch v-model="plan.by_zone"></el-switch>
         </el-form-item>
         <el-form-item>
+          <el-button type="primary" @click.prevent="savePlan(plan)">保存</el-button>
           <el-button type="danger" @click.prevent="removePlan(plan)">删除</el-button>
         </el-form-item>
       </div>
@@ -122,14 +129,13 @@
     <el-form-item>
       <el-button @click="addPlan">新增计划</el-button>
       <!--<el-button type="primary" @click="submitForm('planForm')">保存</el-button>-->
-      <el-button type="primary" @click="submitForm('planForm')">保存</el-button>
     </el-form-item>
   </el-form>
   </div>
 </template>
 
 <script>
-import { getServerManagementList, getChannelList, getAppPackageList, updateAppServerChannel, setOpen, deleteOpen } from '../../api/api';
+import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan, deleteOpenPlan } from '../../api/api';
   export default {
       name: "OpenZone",
       data() {
@@ -221,31 +227,50 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
             'open_user': '',
             'open_time': '',
             'planned': false,
-            // open_type: '',
-            // open_user: '',
-            // open_time: '',
             key: Date.now()
           });
         }
       },
+      // 保存计划
+      savePlan(plan) {
+        this.$confirm('保存计划后将立刻生效, 是否确定?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 去除毫秒
+          plan.open_time /= 1000;
+          setOpenPlan(plan).then(res => {
+            let data = res.data;
+            this.alertMessage('设置开区计划成功', 'success');
+          }).catch(error => {
+            this.alertMessage('设置开区计划失败', 'error');
+          });
+          // deleteWelfare(row.id).then(res => {
+          //   if (res.status === 204) {
+          //     this.applyTableData = this.applyTableData.filter(item => item.id !== row.id);
+          //     this.alertMessage('撤销成功', 'success');
+          //   } else if (res.status === 202) {
+          //     this.alertMessage(res.data, 'warning')
+          //   }
+          // }).catch(error => {
+          //   this.alertMessage(error.message, 'error');
+          // })
+        }).catch(() => {
+
+        });
+      },
       // 移除计划
       removePlan(plan) {
-        let index = this.planForm.plans.indexOf(plan);
-        if (index !== -1) {
-          this.planForm.plans.splice(index, 1);
-          // 前端新增计划，未保存
-          if (plan.unplanned) {
-              console.log('wei')
-          } else {
-              console.log('yi')
-            deleteOpen(plan).then(res => {
-              let data = res.data;
-              console.log(data)
-            }).catch(error => {
+        setOpenPlan(plan).then(res => {
+          console.log(res)
+        }).catch(error => {
 
-            });
-          }
-        }
+        });
+        // let index = this.planForm.plans.indexOf(plan);
+        // if (index !== -1) {
+        //   this.planForm.plans.splice(index, 1);
+        // }
       },
       handleChangeZone(plan) {
         console.log(plan)
@@ -261,7 +286,11 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
       },
       // 改变开区类型
       handleChangeOpenType(plan) {
-        console.log(plan)
+        if (plan.open_type === 1) {
+          this.planForm.plans.find(item => item.id === plan.id).open_time = 0;
+        } else if (plan.open_type === 2) {
+          this.planForm.plans.find(item => item.id === plan.id).open_user = 0;
+        }
         // if (value === 1) {
         //
         // }
@@ -283,10 +312,10 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
           this.zoneOptions.map(item => {
             if (item.open_type === 1) {
               // Object.assign(item, {'open_user': item.open_type_value, 'open_time': ''});
-              this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': item.open_type_value, 'open_time': ''});
+              this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': item.open_type_value, 'open_time': 0});
             } else if (item.open_type === 2) {
               // Object.assign(item, {'open_user': '', 'open_time': item.open_type_value});
-              this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': '', 'open_time': item.open_type_value});
+              this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': 0, 'open_time': item.open_type_value});
             }
 
             // this.planForm.plans.push(result)
@@ -300,6 +329,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, updateAppSe
         this.$refs[formName].validate((valid) => {
           if (valid) {
             alert('submit!');
+            console.log(this[formName])
           } else {
             console.log('error submit!!');
             return false;
