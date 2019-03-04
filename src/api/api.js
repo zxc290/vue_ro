@@ -90,10 +90,17 @@ export const deleteOpenPlan = params => {
 //   return axios.get(`${base}/app_server_channels/`)
 // };
 
-// 获取服务器管理列表
+// 获取开区服务器管理列表
 export const getServerManagementList = params => {
-  // return axios.get(`${base}/server_managements/`)
   return axios.get(`${base}/server_managements?cid=${params.cid}&appid=${params.appid}`)
 };
 
+// 获取推荐服务器管理列表
+export const getRecommendServerManagementList = params => {
+  return axios.get(`${base}/recommend_server_managements?cid=${params.cid}&appid=${params.appid}`)
+};
 
+// 修改推荐状态
+export const changeRecommend = params => {
+  return axios.post(`${base}/change_recommend/${params.id}/`, params)
+};

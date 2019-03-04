@@ -2,12 +2,12 @@
     <div>
       <el-form ref="queryForm" :inline="true" :rules="queryFormRules" :model="queryForm" style="float: left;">
         <el-form-item label="渠道" prop="cid">
-          <el-select v-model="queryForm.cid" clearable placeholder="请选择游戏渠道" @change="handleChangeChannel" @visible-change="handleClickSelectChannel">
+          <el-select v-model="queryForm.cid" clearable placeholder="请选择游戏渠道" @change="handleChangeChannel">
             <el-option v-for="(item, index) in channelOptions" :key="index" :label="item.cname" :value="item.cid"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="包">
-          <el-select v-model="queryForm.appid" clearable placeholder="请选择游戏包" @change="handleChangePackage" @visible-change="handleClickSelectPackage">
+          <el-select v-model="queryForm.appid" clearable placeholder="请选择游戏包" @change="handleChangePackage">
             <el-option v-for="(item, index) in packageOptions" :key="index" :label="item.appid" :value="item.appid"></el-option>
           </el-select>
         </el-form-item>
@@ -420,43 +420,16 @@
               break;
           }
         },
-        handleEdit(index, row) {
-          this.editFormVisible = true;
-          this.editForm.id = row.id;
-          this.editForm.zoneidx = row.zoneidx;
-          this.editForm.server_suggest = row.server_suggest;
-          this.editForm.max_users = row.max_users;
-          this.editForm.server_weight = row.server_weight;
-          this.editForm.autoOpenTime = new Date(this.timeStampFormatter('', '', row.autoOpenTime, ''));
-        },
-        handleDelete(index, row) {
-
-        },
-        // 点击选择渠道下拉框
-        handleClickSelectChannel(val) {
-          if (val) {
-            getChannelList().then(res => {
-              // let data = res.data;
-              this.channelOptions = res.data;
-            }).catch(error => {
-
-            });
-          }
-        },
         // 选择渠道
-        handleChangeChannel(val) {
-          console.log('111112222')
-          if (!val) {
+        handleChangeChannel(value) {
+          if (!value) {
             // 清空
             this.packageOptions = [];
             this.queryForm.appid = '';
-            // this.serverManagementTableData =[];
             return false
           }
           getAppPackageList().then(res => {
-            let data = res.data;
-            // this.packageOptions = data.reduce((all, next) => all.some(item => item.appid === next.appid) ? all : [...all, next], [])
-            this.packageOptions = data;
+            this.packageOptions = res.data;
           }).catch(error => {
 
           });
@@ -489,35 +462,6 @@
             }
           });
         },
-        // // 编辑表单，是否按包f
-        // isByPackage() {
-        //
-        // }
-        // 提交设置开区表单
-        setOpen() {
-          this.openForm.autoOpenTime /= 1000;
-          let params = Object.assign(this.openForm, {'selected_zone': this.multipleSelection})
-          setOpen(params).then(res => {
-            let data = res.data;
-            this.serverManagementTableData.map(item => {
-              let findOne = data.find(each => each.id === item.id);
-              if (findOne) {
-                Object.assign(item, findOne)
-              }
-            });
-            this.alertMessage('设置开区服务器成功', 'success');
-            // Object.assign(this.serverManagementTableData.find(item => item.id === this[formName].id), res.data.find(item => item.id === this[formName].id));
-            // console.log(res.data)
-          }).catch(error => {
-            this.alertMessage('设置开区服务器失败', 'error');
-            console.log('gengxin shibai')
-          });
-          // console.log(this.multipleSelection)
-          // console.log(this.openForm)
-        },
-
-
-
         // 提交编辑表单
         // submitForm(formName) {
         //   this.$refs.serverManagementTableData.clearSelection();
@@ -570,14 +514,14 @@
         getChannelList().then(res => {
           // let data = res.data;
           this.channelOptions = res.data;
-          this.queryForm.cid = this.channelOptions[0].cid;
-          getServerManagementList(this.queryForm).then(res => {
-            let data = res.data;
-            console.log(data)
-            this.serverManagementTableData = data;
-          }).catch(error => {
-            console.log(error)
-          });
+          // this.queryForm.cid = this.channelOptions[0].cid;
+          // getServerManagementList(this.queryForm).then(res => {
+          //   let data = res.data;
+          //   console.log(data)
+          //   this.serverManagementTableData = data;
+          // }).catch(error => {
+          //   console.log(error)
+          // });
         }).catch(error => {
           console.log(error)
         });
