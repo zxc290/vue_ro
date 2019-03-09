@@ -104,3 +104,8 @@ export const getRecommendServerManagementList = params => {
 export const changeRecommend = params => {
   return axios.post(`${base}/change_recommend/${params.id}/`, params)
 };
+
+// 立即开区
+export const openNow = params => {
+  return axios.post(`${base}/open_now/${params.id}/`, params)
+};

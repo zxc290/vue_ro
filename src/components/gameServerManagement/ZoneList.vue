@@ -122,13 +122,28 @@
           sortable>
         </el-table-column>
         <el-table-column
-          label="开区类型对应值"
-          prop="open_type_value"
+          label="本区预计开区时间"
+          prop="open_time"
           align="center"
-          min-width="100"
-          :formatter="openTypeValueFormatter"
+          min-width="120"
+          :formatter="openTypeTimeFormatter"
           sortable>
         </el-table-column>
+        <el-table-column
+          label="本区人数上限"
+          prop="max_user"
+          align="center"
+          min-width="100"
+          sortable>
+        </el-table-column>
+        <!--<el-table-column-->
+          <!--label="开区类型对应值"-->
+          <!--prop="open_type_value"-->
+          <!--align="center"-->
+          <!--min-width="100"-->
+          <!--:formatter="openTypeValueFormatter"-->
+          <!--sortable>-->
+        <!--</el-table-column>-->
         <el-table-column
           min-width="200"
           align="center">
@@ -138,7 +153,12 @@
               size="mini"
               placeholder="输入区服名搜索"/>
           </template>
-
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="danger"
+              @click="openNow(scope.$index, scope.row)">立即开区</el-button>
+          </template>
         </el-table-column>
       </el-table>
 
@@ -147,7 +167,7 @@
 </template>
 
 <script>
-  import { getServerManagementList, getChannelList, getAppPackageList, updateAppServerChannel } from '../../api/api';
+  import { getServerManagementList, getChannelList, getAppPackageList, openNow } from '../../api/api';
 
     export default {
       name: "ZoneList",
@@ -269,38 +289,26 @@
           let text = '';
           switch (cellValue) {
             case 0:
-              text = '立即开启';
+              text = '立即开区';
               break;
             case 1:
-              text = '按人数开区';
-              break;
-            case 2:
               text = '按时间开区';
               break;
+            case 2:
+              text = '按人数开区';
+              break;
             default:
-              text = '/';
+              text = '未开启';
               break;
           }
           return text
         },
         // 开区类型对应值转化
-        openTypeValueFormatter(row, column, cellValue, index) {
-          let text = '';
-          switch (row.open_type) {
-            case 0:
-              text = '/';
-              break;
-            case 1:
-              text = cellValue;
-              break;
-            case 2:
-              text = this.timeStampFormatter('', '', cellValue, '');
-              break;
-            default:
-              text = '/';
-              break;
+        openTypeTimeFormatter(row, column, cellValue, index) {
+          // let text = '';
+          if (cellValue !== null) {
+            return this.timeStampFormatter('', '', cellValue, '')
           }
-          return text
         },
         // 时间戳转日期时间
         timeStampFormatter(row, column, cellValue, index) {
@@ -369,12 +377,6 @@
           }
           return text
         },
-        // selectChange() {
-        //
-        // },
-        // selectAll() {
-        //
-        // },
         getRowKeys(row) {
           return row.id
         },
@@ -460,6 +462,25 @@
             else {
               console.log('shibai2')
             }
+          });
+        },
+        // 立即开区
+        openNow(index, row) {
+          this.$confirm('立即开区将即刻生效，且无法修改, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            openNow(row).then(res => {
+              this.serverManagementTableData = (this.serverManagementTableData.filter(item => item.id !== row.id));
+              // console.log(res);
+              this.alertMessage('立即开区成功', 'success');
+            }).catch(error => {
+              console.log(error)
+              this.alertMessage('立即开区失败', 'error');
+            });
+          }).catch(() => {
+
           });
         },
         // 提交编辑表单

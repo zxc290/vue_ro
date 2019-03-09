@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-button type="primary" style="float: left;" @click="clickMultiRecommend">多区推荐</el-button>
     <el-form ref="queryForm" :inline="true" :model="queryForm" :rules="queryFormRules">
       <el-form-item label="渠道" prop="cid">
         <el-select v-model="queryForm.cid" clearable placeholder="请选择游戏渠道" @change="handleChangeChannel">
@@ -22,7 +23,12 @@
       style="width: 100%"
       ref="serverManagementTableData"
       size="small"
+      @selection-change="handleSelectionChange"
       border>
+      <el-table-column
+        type="selection"
+        width="55">
+      </el-table-column>
       <el-table-column
         label="id"
         prop="id"
@@ -50,13 +56,6 @@
         :formatter="serverSuggestFormatter"
         align="center">
       </el-table-column>
-      <!--<el-table-column-->
-        <!--label="是否推荐"-->
-        <!--prop="server_suggest"-->
-        <!--align="center"-->
-        <!--:formatter="serverSuggestFormatter"-->
-        <!--sortable>-->
-      <!--</el-table-column>-->
       <el-table-column
         min-width="200"
         align="center">
@@ -70,70 +69,44 @@
           <el-button
             size="mini"
             type="primary"
-            @click="changeRecommend(scope.$index, scope.row, 1)">设为推荐</el-button>
+            @click="setRecommend(scope.$index, scope.row, 1)">设为默认推荐</el-button>
           <el-button
             size="mini"
             type="danger"
-            @click="changeRecommend(scope.$index, scope.row, 0)">设为不推荐</el-button>
+            @click="setRecommend(scope.$index, scope.row, 0)">设为默认不推荐</el-button>
         </template>
         <!--<el-button type="primary" @click="changeRecommend(scope.$index, scope.row, 1)">设为推荐</el-button>-->
         <!--<el-button type="warning" @click="changeRecommend(scope.$index, scope.row, 0)">设为不推荐</el-button>-->
       </el-table-column>
     </el-table>
-    <!--<el-form ref="recommendForm" :model="recommendForm" :inline="true">-->
-      <!--<div v-for="(plan, index) in recommendForm.plans" :key="plan.key">-->
-        <!--&lt;!&ndash;<el-form-item label="id">&ndash;&gt;-->
-        <!--&lt;!&ndash;<el-input readonly v-model="plan.id"></el-input>&ndash;&gt;-->
-        <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
-        <!--&lt;!&ndash;<el-form-item label="zoneidx">&ndash;&gt;-->
-        <!--&lt;!&ndash;<el-input readonly v-model="plan.zoneidx"></el-input>&ndash;&gt;-->
-        <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
-        <!--<el-form-item label="区服名" :prop="'plans.' + index + '.id'" :rules="[-->
-      <!--{ required: true, message: '请选择区服', trigger: 'change' },-->
-    <!--]">-->
-          <!--&lt;!&ndash;<el-input readonly v-model="plan.zonename"></el-input>&ndash;&gt;-->
-          <!--<el-select v-model="plan.id" placeholder="请选择区服" @change="handleChangeZone(plan)">-->
-            <!--<el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.zonename" :value="item.id"></el-option>-->
-          <!--</el-select>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="开区类型" :prop="'plans.' + index + '.open_type'" :rules="[-->
-      <!--{ required: true, message: '请选择开区类型', trigger: 'change' },-->
-    <!--]">-->
-          <!--<el-select v-model="plan.open_type" clearable placeholder="请选择开区类型" @change="handleChangeOpenType(plan)">-->
-            <!--<el-option v-for="(item, index) in openTypeOptions" :key="index" :label="item.label" :value="item.value"></el-option>-->
-          <!--</el-select>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="开区人数" v-show="plan.open_type === 1" :prop="'plans.' + index + '.open_user'" :rules="[-->
-              <!--{ required: true, message: '请输入开区人数', trigger: 'change' },-->
-        <!--]">-->
-          <!--<el-input v-model.number="plan.open_user" placeholder="请输入开区人数"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="开区时间" v-show="plan.open_type === 2" :prop="'plans.' + index + '.open_time'" :rules="[-->
-          <!--{ required: true, message: '请输入开区时间', trigger: 'change' },-->
-        <!--]">-->
-          <!--<el-date-picker-->
-            <!--v-model="plan.open_time"-->
-            <!--type="datetime"-->
-            <!--value-format="timestamp"-->
-            <!--placeholder="请选择开区时间">-->
-          <!--</el-date-picker>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="同步到区">-->
-          <!--<el-switch v-model="plan.by_zone"></el-switch>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item>-->
-          <!--&lt;!&ndash;<el-button type="primary" @click.prevent="savePlan('recommendForm', plan)">保存</el-button>&ndash;&gt;-->
-          <!--&lt;!&ndash;<el-button type="danger" @click.prevent="removePlan(plan)">删除</el-button>&ndash;&gt;-->
-        <!--</el-form-item>-->
-      <!--</div>-->
-      <!--&lt;!&ndash;<el-form-item label="同步到区">&ndash;&gt;-->
-      <!--&lt;!&ndash;<el-switch v-model="recommendForm.by_zone"></el-switch>&ndash;&gt;-->
-      <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
-      <!--<el-form-item>-->
-        <!--&lt;!&ndash;<el-button type="primary" @click="addPlan">新增计划</el-button>&ndash;&gt;-->
-        <!--&lt;!&ndash;<el-button type="primary" @click="submitForm('recommendForm')">保存</el-button>&ndash;&gt;-->
-      <!--</el-form-item>-->
-    <!--</el-form>-->
+    <el-dialog title="多区权重推荐设置" :visible.sync="multiRecommendFormVisible" width="35%" center>
+      <el-form ref="multiRecommendForm" :model="multiRecommendForm" :inline="true" :label-position="multiRecommendFormLabelPosition">
+        <div v-for="(zone, index) in multiRecommendForm.zones" :key="zone.id">
+          <!--<el-form-item label="id">-->
+          <!--<el-input readonly v-model="plan.id"></el-input>-->
+          <!--</el-form-item>-->
+          <!--<el-form-item label="zoneidx">-->
+          <!--<el-input readonly v-model="plan.zoneidx"></el-input>-->
+          <!--</el-form-item>-->
+          <el-form-item label="区服id" :prop="'zones.' + index + '.id'" v-if="false">
+            <el-input readonly v-model="zone.id"></el-input>
+          </el-form-item>
+          <el-form-item label="区服名" :prop="'zones.' + index + '.zonename'">
+            <el-input readonly v-model="zone.zonename"></el-input>
+          </el-form-item>
+          <el-form-item label="推荐权重" :prop="'zones.' + index + '.server_weight'" :rules="[
+            { required: true, message: '推荐权重不能为空' },
+            { type: 'number', message: '必须为数字值' },
+            { pattern:/^\d$/, message: '输入范围1-9'},
+        ]">
+            <el-input v-model.number="zone.server_weight" placeholder="服务器权重数1~9"></el-input>
+          </el-form-item>
+        </div>
+        <el-form-item>
+          <el-button type="primary">确定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -175,6 +148,21 @@
         recommendServerManagementTableData: [],
         // 搜索
         search: '',
+        // 权重推荐表单可见
+        multiRecommendFormVisible: false,
+        //
+        multiRecommendFormLabelPosition: 'left',
+        // 权重推荐选择项
+        multiSelectedZone: [],
+        // 权重推荐表单
+        multiRecommendForm: {
+          gid: 50,
+          cid: '',
+          appid: '',
+          zones: [
+
+          ]
+        },
       }
     },
     methods: {
@@ -239,10 +227,12 @@
 
         });
       },
-      changeRecommend(index, row, value) {
+      setRecommend(index, row, value) {
         let params = {'id': row.id, 'server_suggest': value};
         changeRecommend(params).then(res => {
-          row.server_suggest = value;
+          let data = res.data;
+          this.recommendServerManagementTableData = data;
+          // row.server_suggest = value;
           this.alertMessage('修改推荐状态成功', 'success');
         }).catch(error => {
           this.alertMessage('修改推荐状态失败', 'error');
@@ -250,6 +240,20 @@
         })
         // Object.assign(row, {'server_suggest': value})
         // console.log(row)
+      },
+      // 多区推荐选中项
+      handleSelectionChange(selection) {
+        this.multiSelectedZone = selection;
+        console.log(this.multiSelectedZone)
+      },
+      // 点击多区推荐按钮
+      clickMultiRecommend() {
+        if (this.multiSelectedZone.length < 2) {
+          this.alertMessage('多区推荐至少需要勾选2个区', 'error')
+        } else {
+          this.multiRecommendForm.zones = this.multiSelectedZone;
+          this.multiRecommendFormVisible = true;
+        }
       },
       // 是否推荐格式化
       serverSuggestFormatter(row, column, cellValue, index) {

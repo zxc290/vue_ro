@@ -25,29 +25,17 @@
         <!--<el-form-item label="zoneidx">-->
           <!--<el-input readonly v-model="plan.zoneidx"></el-input>-->
         <!--</el-form-item>-->
-        <el-form-item label="区服名" :prop="'plans.' + index + '.id'" :rules="[
-      { required: true, message: '请选择区服', trigger: 'change' },
-    ]">
-          <!--<el-input readonly v-model="plan.zonename"></el-input>-->
-          <el-select v-model="plan.id" placeholder="请选择区服" @change="handleChangeZone(plan)">
-            <el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.zonename" :value="item.id"></el-option>
-          </el-select>
+        <el-form-item>
+          <el-tag type="success" v-show="plan.planned">已生效</el-tag>
+          <el-tag type="danger" v-show="!plan.planned">未生效</el-tag>
         </el-form-item>
-        <el-form-item label="开区类型" :prop="'plans.' + index + '.open_type'" :rules="[
-      { required: true, message: '请选择开区类型', trigger: 'change' },
-    ]">
-          <el-select v-model="plan.open_type" clearable placeholder="请选择开区类型" @change="handleChangeOpenType(plan)">
-            <el-option v-for="(item, index) in openTypeOptions" :key="index" :label="item.label" :value="item.value"></el-option>
-          </el-select>
+        <el-form-item label="区服名" :prop="'plans.' + index + '.id'">
+          <el-input readonly v-model="plan.zonename"></el-input>
+          <!--<el-select v-model="plan.id" placeholder="请选择区服" @change="handleChangeZone(plan)">-->
+            <!--<el-option v-for="(item, index) in zoneOptions" :key="index" :label="item.zonename" :value="item.id"></el-option>-->
+          <!--</el-select>-->
         </el-form-item>
-        <el-form-item label="开区人数" v-show="plan.open_type === 1" :prop="'plans.' + index + '.open_user'" :rules="[
-              { required: true, message: '请输入开区人数', trigger: 'change' },
-        ]">
-          <el-input v-model.number="plan.open_user" placeholder="请输入开区人数"></el-input>
-        </el-form-item>
-        <el-form-item label="开区时间" v-show="plan.open_type === 2" :prop="'plans.' + index + '.open_time'" :rules="[
-          { required: true, message: '请输入开区时间', trigger: 'change' },
-        ]">
+        <el-form-item label="开区时间" :prop="'plans.' + index + '.open_time'">
           <el-date-picker
             v-model="plan.open_time"
             type="datetime"
@@ -55,13 +43,39 @@
             placeholder="请选择开区时间">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="人数上限" :prop="'plans.' + index + '.max_user'">
+          <el-input v-model.number="plan.max_user" placeholder="请输入开区人数"></el-input>
+        </el-form-item>
+        <!--<el-form-item label="开区类型" :prop="'plans.' + index + '.open_type'" :rules="[-->
+      <!--{ required: true, message: '请选择开区类型', trigger: 'change' },-->
+    <!--]">-->
+          <!--<el-select v-model="plan.open_type" clearable placeholder="请选择开区类型" @change="handleChangeOpenType(plan)">-->
+            <!--<el-option v-for="(item, index) in openTypeOptions" :key="index" :label="item.label" :value="item.value"></el-option>-->
+          <!--</el-select>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="开区时间" :prop="'plans.' + index + '.open_time'" :rules="[-->
+          <!--{ required: true, message: '请输入开区时间', trigger: 'change' },-->
+        <!--]">-->
+          <!--<el-date-picker-->
+            <!--v-model="plan.open_time"-->
+            <!--type="datetime"-->
+            <!--value-format="timestamp"-->
+            <!--placeholder="请选择开区时间">-->
+          <!--</el-date-picker>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="人数上限" :prop="'plans.' + index + '.max_user'" :rules="[-->
+              <!--{ required: true, message: '请输入开区人数', trigger: 'change' },-->
+        <!--]">-->
+          <!--<el-input v-model.number="plan.max_user" placeholder="请输入开区人数"></el-input>-->
+        <!--</el-form-item>-->
         <el-form-item label="同步到区">
-          <el-switch v-model="plan.by_zone"></el-switch>
+          <el-switch v-model="plan.by_zone" @change="changeSwitch(plan)"></el-switch>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click.prevent="savePlan('planForm', plan)">保存</el-button>
-          <el-button type="danger" @click.prevent="removePlan(plan)">删除</el-button>
+          <!--<el-button type="danger" @click.prevent="removePlan(plan)">删除</el-button>-->
         </el-form-item>
+
       </div>
       <!--<el-form-item label="同步到区">-->
       <!--<el-switch v-model="planForm.by_zone"></el-switch>-->
@@ -122,7 +136,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               // zoneidx: '',
               // zonename: '',
               // open_type: '',
-              // open_user: '',
+              // max_user: '',
               // open_time: '',
               // by_zone: false,
               // }
@@ -156,23 +170,50 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
 
         });
       },
+      // 切换是否同步到区
+      changeSwitch(plan) {
+        let zone = this.zoneOptions.find(item => item.id === plan.id);
+        if (!zone.sync) {
+          this.alertMessage('该区默认配置为不同步，无法修改为同步', 'error');
+          plan.by_zone = false;
+        }
+      },
       // 新增计划
       addPlan() {
+        // 没有可选配置区
         if (this.planForm.plans.length >= this.zoneOptions.length) {
           this.alertMessage('已无可设置计划的区服', 'warning')
         } else {
+          // 获取上一个配置区
+          let previousPlan = this.planForm.plans[this.planForm.plans.length - 1];
+          if (!previousPlan.planned) {
+            this.alertMessage('请先保存上一个区的配置', 'error')
+            return false
+          }
+
+
+          let plan = this.zoneOptions.filter(item => !(item.open_time || item.max_user))[0]
           console.log(this.planForm)
-          let selectedArray = this.planForm.plans.map(item => item.id);
-          console.log(selectedArray)
+          // let selectedArray = this.planForm.plans.map(item => item.id);
+          // console.log(selectedArray)
           this.planForm.plans.push({
-            'id': '',
-            'zoneidx': '',
-            'zonename':'',
-            'open_type': '',
-            'open_user': '',
-            'open_time': '',
+            'id': plan.id,
+            'zoneidx': plan.zoneidx,
+            'zonename': plan.zonename,
+            'open_type': plan.open_type,
+            'max_user': plan.max_user,
+            'open_time': plan.open_time,
+            'by_zone': plan.sync,
             'planned': false,
             key: Date.now()
+            // 'id': '',
+            // 'zoneidx': '',
+            // 'zonename':'',
+            // 'open_type': '',
+            // 'max_user': '',
+            // 'open_time': '',
+            // 'planned': false,
+            // key: Date.now()
           });
         }
       },
@@ -186,16 +227,21 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               type: 'warning'
             }).then(() => {
               // 去除毫秒
-              plan.open_time /= 1000;
-              setOpenPlan(plan).then(res => {
-                let data = res.data;
-                // 填充表单
-                plan.open_time = data.open_type_value * 1000;
-                console.log(data)
-                this.alertMessage('设置开区计划成功', 'success');
-              }).catch(error => {
-                this.alertMessage('设置开区计划失败', 'error');
-              });
+              // plan.open_time /= 1000;
+              if (plan.open_time || plan.max_user) {
+                setOpenPlan(plan).then(res => {
+                  let data = res.data;
+                  // 填充表单
+                  // plan.open_time = data.find(item => item.id === plan.id).open_time * 1000;
+                  console.log(data)
+                  this.alertMessage('设置开区计划成功', 'success');
+                }).catch(error => {
+                  this.alertMessage('设置开区计划失败', 'error');
+                });
+              } else {
+                this.alertMessage('开区时间和人数上限不能都为空', 'error');
+                return false
+              }
             }).catch(() => {
 
             });
@@ -204,25 +250,6 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
             return false;
           }
         });
-        // this.$confirm('保存计划后立刻生效, 是否继续?', '提示', {
-        //   confirmButtonText: '确定',
-        //   cancelButtonText: '取消',
-        //   type: 'warning'
-        // }).then(() => {
-        //   // 去除毫秒
-        //   plan.open_time /= 1000;
-        //   setOpenPlan(plan).then(res => {
-        //     let data = res.data;
-        //     // 填充表单
-        //     plan.open_time = data.open_type_value * 1000;
-        //     console.log(data)
-        //     this.alertMessage('设置开区计划成功', 'success');
-        //   }).catch(error => {
-        //     this.alertMessage('设置开区计划失败', 'error');
-        //   });
-        // }).catch(() => {
-        //
-        // });
       },
       // 移除计划
       removePlan(plan) {
@@ -264,8 +291,8 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
           console.log(plan.open_time)
           // this.planForm.plans.find(item => item.id === plan.id).open_time = 0;
         } else if (plan.open_type === 2) {
-          plan.open_user = plan.open_user ? plan.open_user : 0;
-          // this.planForm.plans.find(item => item.id === plan.id).open_user = 0;
+          plan.max_user = plan.max_user ? plan.max_user : 0;
+          // this.planForm.plans.find(item => item.id === plan.id).max_user = 0;
         }
         // if (value === 1) {
         //
@@ -277,6 +304,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
           if (valid) {
             getServerManagementList(this.queryForm).then(res => {
               this.zoneOptions = res.data;
+              console.log(this.zoneOptions)
               // this.zoneOptions = data.map(item => {
               //   return item;
               // });
@@ -286,17 +314,25 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               // this.unplannedZone = data.filter(item => item.open_type === null);
               // 清空当前表单，并插入查询数据
               this.planForm.plans = [];
+              // this.planForm.plans = this.zoneOptions.filter(item => item.open_time || item.max_user);
+              // this.planForm.plans.map(item => item.planned = true);
               this.zoneOptions.map(item => {
-                if (item.open_type === 1) {
-                  // Object.assign(item, {'open_user': item.open_type_value, 'open_time': ''});
-                  this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': item.open_type_value, 'open_time': 0});
-                } else if (item.open_type === 2) {
-                  // Object.assign(item, {'open_user': '', 'open_time': item.open_type_value});
-                  this.planForm.plans.push({'id': item.id, 'zoneidx': item.zoneidx, 'zonename':item.zonename, 'open_type': item.open_type, 'open_user': 0, 'open_time': item.open_type_value * 1000});
+                if (item.open_time || item.max_user) {
+                  this.planForm.plans.push(
+                    {
+                      'id': item.id,
+                      'zoneidx': item.zoneidx,
+                      'zonename': item.zonename,
+                      'open_type': item.open_type,
+                      'open_time': item.open_time * 1000,
+                      'max_user': item.max_user,
+                      'by_zone': item.sync,
+                      'planned': true
+                    }
+                  )
                 }
-
-                // this.planForm.plans.push(result)
               });
+              console.log(this.planForm.plans)
             }).catch(error => {
               console.log(error)
             });
