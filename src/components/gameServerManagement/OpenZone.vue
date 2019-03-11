@@ -40,7 +40,8 @@
             v-model="plan.open_time"
             type="datetime"
             value-format="timestamp"
-            placeholder="请选择开区时间">
+            placeholder="请选择开区时间"
+            :picker-options="pickerOptions">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="人数上限" :prop="'plans.' + index + '.max_user'">
@@ -142,6 +143,13 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               // }
             ],
           },
+          // // 开区时间选择范围
+          pickerOptions: {
+            disabledDate(time) {
+              let nowDate = new Date();
+              return time.getTime() < new Date(nowDate.setDate(nowDate.getDate() - 1));
+            }
+          }
         }
       },
     methods: {
@@ -229,6 +237,10 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               // 去除毫秒
               // plan.open_time /= 1000;
               if (plan.open_time || plan.max_user) {
+                if (plan.open_time !== null && plan.open_time < Date.now() + 60 * 60 * 1000) {
+                  this.alertMessage('开区时间必须至少是当前时间1小时之后', 'error');
+                  return false
+                }
                 setOpenPlan(plan).then(res => {
                   let data = res.data;
                   // 填充表单

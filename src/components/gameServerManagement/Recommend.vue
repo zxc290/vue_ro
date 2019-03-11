@@ -179,6 +179,7 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             getRecommendServerManagementList(this.queryForm).then(res => {
+              console.log(res.data)
               this.recommendServerManagementTableData = res.data;
               // this.zoneOptions = res.data;
               // this.zoneOptions = data.map(item => {
