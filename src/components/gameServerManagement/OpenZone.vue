@@ -188,16 +188,21 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
       },
       // 新增计划
       addPlan() {
+        console.log(this.planForm.plans)
+        console.log(this.zoneOptions)
         // 没有可选配置区
         if (this.planForm.plans.length >= this.zoneOptions.length) {
           this.alertMessage('已无可设置计划的区服', 'warning')
         } else {
-          // 获取上一个配置区
-          let previousPlan = this.planForm.plans[this.planForm.plans.length - 1];
-          if (!previousPlan.planned) {
-            this.alertMessage('请先保存上一个区的配置', 'error')
-            return false
+          if (this.planForm.plans.length >= 1) {
+            // 获取上一个配置区
+            let previousPlan = this.planForm.plans[this.planForm.plans.length - 1];
+            if (!previousPlan.planned) {
+              this.alertMessage('请先保存上一个区的配置', 'error')
+              return false
+            }
           }
+
 
 
           let plan = this.zoneOptions.filter(item => !(item.open_time || item.max_user))[0]
@@ -237,12 +242,17 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               // 去除毫秒
               // plan.open_time /= 1000;
               if (plan.open_time || plan.max_user) {
-                if (plan.open_time !== null && plan.open_time < Date.now() + 60 * 60 * 1000) {
-                  this.alertMessage('开区时间必须至少是当前时间1小时之后', 'error');
-                  return false
-                }
+                // if (plan.open_time !== null && plan.open_time < Date.now() + 60 * 60 * 1000) {
+                //   this.alertMessage('开区时间必须至少是当前时间1小时之后', 'error');
+                //   return false
+                // }
                 setOpenPlan(plan).then(res => {
+                  if (res.status === 204) {
+                    this.alertMessage('该区已开服，请重新查询区服列表,', 'error');
+                    return false
+                  }
                   let data = res.data;
+                  plan.planned = true;
                   // 填充表单
                   // plan.open_time = data.find(item => item.id === plan.id).open_time * 1000;
                   console.log(data)
