@@ -9,6 +9,11 @@ export const login = params => {
   return axios.post(`${base}/login`, params)
 };
 
+// 获取用户权限
+export const getUserPermissions = id => {
+  return axios.get(`${base}/user_permissions/${id}`)
+};
+
 // 获取平台选项
 export const getPlatformOptions = () => {
   return axios.get(`${base}/app_platforms`)
@@ -100,9 +105,14 @@ export const getRecommendServerManagementList = params => {
   return axios.get(`${base}/recommend_server_managements?cid=${params.cid}&appid=${params.appid}`)
 };
 
-// 修改推荐状态
+// 修改手动推荐状态
 export const changeRecommend = params => {
   return axios.post(`${base}/change_recommend/${params.id}/`, params)
+};
+
+// 修改权重推荐
+export const weightRecommend = params => {
+  return axios.post(`${base}/weight_recommend/`, params)
 };
 
 // 立即开区

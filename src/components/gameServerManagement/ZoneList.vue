@@ -153,7 +153,7 @@
               size="mini"
               placeholder="输入区服名搜索"/>
           </template>
-          <template slot-scope="scope">
+          <template slot-scope="scope" v-if="scope.row.open_type === null">
             <el-button
               size="mini"
               type="danger"
@@ -161,8 +161,6 @@
           </template>
         </el-table-column>
       </el-table>
-
-
     </div>
 </template>
 
@@ -438,7 +436,7 @@
         },
         // 选择包
         handleChangePackage(value) {
-          console.log(value)
+          // console.log(value)
         },
         // 查询服务器列表
         onSubmit(formName) {
@@ -446,7 +444,7 @@
             if (valid) {
               getServerManagementList(this[formName]).then(res => {
                 let data = res.data;
-                console.log(data)
+                // console.log(data)
                 this.serverManagementTableData = data;
                 // this.serverManagementTableData = data.map(item => Object.assign(
                 //   item, {
@@ -456,27 +454,34 @@
                 //   }
                 // ));
               }).catch(error => {
-                console.log(error)
+                // console.log(error)
               });
             }
             else {
-              console.log('shibai2')
+              // console.log('shibai2')
             }
           });
         },
         // 立即开区
         openNow(index, row) {
+          if (row.open_type !== null) {
+            this.alertMessage('无法对已开区执行立即开区操作', 'error');
+            return false
+          }
           this.$confirm('立即开区将即刻生效，且无法修改, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
             openNow(row).then(res => {
-              this.serverManagementTableData = (this.serverManagementTableData.filter(item => item.id !== row.id));
+              // console.log(res.data)
+              Object.assign(this.serverManagementTableData.find(item => item.id === row.id), res.data)
+              // this.serverManagementTableData.find(item => item.id === row.id)
+              // this.serverManagementTableData = (this.serverManagementTableData.filter(item => item.id !== row.id));
               // console.log(res);
               this.alertMessage('立即开区成功', 'success');
             }).catch(error => {
-              console.log(error)
+              // console.log(error)
               this.alertMessage('立即开区失败', 'error');
             });
           }).catch(() => {
@@ -522,12 +527,12 @@
           }
 
           getAppPackageList().then(res => {
-            console.log('pac')
+            // console.log('pac')
             let data = res.data;
             // this.packageOptions = data.reduce((all, next) => all.some(item => item.appid === next.appid) ? all : [...all, next], [])
             this.packageOptions = data;
           }).catch(error => {
-            console.log(error)
+            // console.log(error)
           });
         }
       },
@@ -544,7 +549,7 @@
           //   console.log(error)
           // });
         }).catch(error => {
-          console.log(error)
+          // console.log(error)
         });
       }
     }

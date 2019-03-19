@@ -10,10 +10,10 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     currentUser: null,
-    isApplicant: false,
-    isApprover: false,
-    isRoleManager: false,
-    isRecordChecker: false,
+    // isApplicant: false,
+    // isApprover: false,
+    // isRoleManager: false,
+    // isRecordChecker: false,
     isLogin: false,
     token: '',
   },

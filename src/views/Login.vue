@@ -3,11 +3,11 @@
     <el-form :model="loginForm" :rules="rules" ref="loginForm" label-position="left" label-width="0px"
              class="demo-ruleForm login-container">
       <h3 class="title">ro运营管理工具登录</h3>
-      <el-form-item prop="account">
-        <el-input type="text" v-model="loginForm.account" auto-complete="off" placeholder="账号"></el-input>
+      <el-form-item prop="username">
+        <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="账号"></el-input>
       </el-form-item>
-      <el-form-item prop="checkPass">
-        <el-input type="password" v-model="loginForm.checkPass" auto-complete="off" placeholder="密码"></el-input>
+      <el-form-item prop="password">
+        <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
       </el-form-item>
       <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
       <el-form-item style="width:100%; margin-top: 20px">
@@ -28,16 +28,16 @@
       return {
         logining: false,
         loginForm: {
-          account: '',
-          checkPass: ''
+          username: '',
+          password: ''
         },
         rules: {
-          account: [
-            { required: true, message: '请输入账号', trigger: 'blur' },
+          username: [
+            { required: true, message: '请输入账号' },
             //{ validator: validaePass }
           ],
-          checkPass: [
-            { required: true, message: '请输入密码', trigger: 'blur' },
+          password: [
+            { required: true, message: '请输入密码' },
             //{ validator: validaePass2 }
           ]
         },
@@ -57,15 +57,10 @@
         this.$refs.loginForm.resetFields();
       },
       handleSubmit() {
-        let that = this;
         this.$refs.loginForm.validate((valid) => {
           if (valid) {
-            // that.$router.replace('/table');
             this.logining = true;
-            // NProgress.start();
-            let loginParams = { username: this.loginForm.account, password: this.loginForm.checkPass };
-
-            login(loginParams).then(res => {
+            login(this.loginForm).then(res => {
               let data = res.data;
               if (data.code === 1) {
                 this.$message.success({
@@ -75,10 +70,10 @@
                 let userInfo = data.user_info;
                 sessionStorage.setItem('userId', userInfo.user_id);
                 sessionStorage.setItem('userName', userInfo.username);
-                sessionStorage.setItem('isApplicant', userInfo.is_applicant);
-                sessionStorage.setItem('isApprover', userInfo.is_approver);
-                sessionStorage.setItem('isRoleManager', userInfo.is_role_manager);
-                sessionStorage.setItem('isRecordChecker', userInfo.is_record_checker);
+                // sessionStorage.setItem('isApplicant', userInfo.is_applicant);
+                // sessionStorage.setItem('isApprover', userInfo.is_approver);
+                // sessionStorage.setItem('isRoleManager', userInfo.is_role_manager);
+                // sessionStorage.setItem('isRecordChecker', userInfo.is_record_checker);
                 sessionStorage.setItem('userToken', data.token);
                 this.$store.dispatch('setUser', userInfo);
                 this.$store.dispatch('setToken', data.token);
@@ -96,7 +91,6 @@
 
             });
           } else {
-            // console.log('提交失败，请按照规则填写');
             return false;
           }
         });

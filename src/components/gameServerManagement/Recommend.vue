@@ -32,7 +32,8 @@
       <el-table-column
         label="id"
         prop="id"
-        align="center">
+        align="center"
+        v-if="false">
       </el-table-column>
       <el-table-column
         label="区服名"
@@ -51,11 +52,28 @@
         sortable>
       </el-table-column>
       <el-table-column
-        label="是否推荐"
+        label="推荐方式"
         prop="server_suggest"
         :formatter="serverSuggestFormatter"
         align="center">
       </el-table-column>
+      <el-table-column
+        label="推荐权重"
+        prop="server_weight"
+        align="center">
+      </el-table-column>
+      <!--<el-table-column-->
+        <!--label="推荐类型"-->
+        <!--prop="server_suggest"-->
+        <!--:formatter="serverSuggestFormatter"-->
+        <!--align="center">-->
+      <!--</el-table-column>-->
+      <!--<el-table-column-->
+        <!--label="推荐权重"-->
+        <!--prop="server_suggest"-->
+        <!--:formatter="serverSuggestFormatter"-->
+        <!--align="center">-->
+      <!--</el-table-column>-->
       <el-table-column
         min-width="200"
         align="center">
@@ -79,8 +97,8 @@
         <!--<el-button type="warning" @click="changeRecommend(scope.$index, scope.row, 0)">设为不推荐</el-button>-->
       </el-table-column>
     </el-table>
-    <el-dialog title="多区权重推荐设置" :visible.sync="multiRecommendFormVisible" width="35%" center>
-      <el-form ref="multiRecommendForm" :model="multiRecommendForm" :inline="true" :label-position="multiRecommendFormLabelPosition">
+    <el-dialog title="多区权重推荐设置" :visible.sync="multiRecommendFormVisible" width="30%" center>
+      <el-form ref="multiRecommendForm" :model="multiRecommendForm" :label-position="multiRecommendFormLabelPosition" label-width="100px">
         <div v-for="(zone, index) in multiRecommendForm.zones" :key="zone.id">
           <!--<el-form-item label="id">-->
           <!--<el-input readonly v-model="plan.id"></el-input>-->
@@ -103,7 +121,7 @@
           </el-form-item>
         </div>
         <el-form-item>
-          <el-button type="primary">确定</el-button>
+           <el-button type="primary" @click.prevent="setWeight('multiRecommendForm')">确定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -111,7 +129,7 @@
 </template>
 
 <script>
-  import { getRecommendServerManagementList, getChannelList, getAppPackageList, changeRecommend } from '../../api/api';
+  import { getRecommendServerManagementList, getChannelList, getAppPackageList, changeRecommend, weightRecommend } from '../../api/api';
   export default {
     name: "Recommend",
     data() {
@@ -137,13 +155,13 @@
             { required: true, message: '请选择包', trigger: 'change' },
           ],
         },
-        // 开区表单
-        recommendForm: {
-          id: '',
-          zonename: '',
-          appid: '',
-          server_suggest: '',
-        },
+        // // 开区表单
+        // recommendForm: {
+        //   id: '',
+        //   zonename: '',
+        //   appid: '',
+        //   server_suggest: '',
+        // },
         // 推荐区服列表
         recommendServerManagementTableData: [],
         // 搜索
@@ -151,7 +169,7 @@
         // 权重推荐表单可见
         multiRecommendFormVisible: false,
         //
-        multiRecommendFormLabelPosition: 'left',
+        multiRecommendFormLabelPosition: 'right',
         // 权重推荐选择项
         multiSelectedZone: [],
         // 权重推荐表单
@@ -179,8 +197,10 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             getRecommendServerManagementList(this.queryForm).then(res => {
-              console.log(res.data)
+              // console.log(res.data)
               this.recommendServerManagementTableData = res.data;
+              this.multiRecommendForm.cid = this.queryForm.cid;
+              this.multiRecommendForm.appid = this.queryForm.appid;
               // this.zoneOptions = res.data;
               // this.zoneOptions = data.map(item => {
               //   return item;
@@ -203,7 +223,7 @@
               //   // this.planForm.plans.push(result)
               // });
             }).catch(error => {
-              console.log(error)
+              // console.log(error)
             });
             // console.log(this.planForm.plans)
           } else {
@@ -237,7 +257,7 @@
           this.alertMessage('修改推荐状态成功', 'success');
         }).catch(error => {
           this.alertMessage('修改推荐状态失败', 'error');
-          console.log(error)
+          // console.log(error)
         })
         // Object.assign(row, {'server_suggest': value})
         // console.log(row)
@@ -245,26 +265,85 @@
       // 多区推荐选中项
       handleSelectionChange(selection) {
         this.multiSelectedZone = selection;
-        console.log(this.multiSelectedZone)
+        // console.log(this.multiSelectedZone)
       },
       // 点击多区推荐按钮
       clickMultiRecommend() {
         if (this.multiSelectedZone.length < 2) {
           this.alertMessage('多区推荐至少需要勾选2个区', 'error')
         } else {
-          this.multiRecommendForm.zones = this.multiSelectedZone;
+          this.multiRecommendForm.zones = [];
+          this.multiSelectedZone.map(item => this.multiRecommendForm.zones.push({'id': item.id, 'zonename': item.zonename, 'server_weight': item.server_weight}))
+          // this.multiRecommendForm.zones = this.multiSelectedZone;
           this.multiRecommendFormVisible = true;
+          // console.log(this.multiRecommendForm)
         }
+      },
+      // 设置多区
+      setWeight(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.$confirm('设置权重推荐将立刻生效, 是否继续?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              weightRecommend(this.multiRecommendForm).then(res => {
+                let data = res.data;
+                this.recommendServerManagementTableData = data;
+                this.alertMessage('设置多区权重推荐成功', 'success');
+              }).catch(error => {
+                this.alertMessage('设置多区权重推荐失败', 'error');
+              });
+              this.multiRecommendFormVisible = false;
+              // console.log(this.multiRecommendForm)
+              // // 去除毫秒
+              // // plan.open_time /= 1000;
+              // if (plan.open_time || plan.max_user) {
+              //   // if (plan.open_time !== null && plan.open_time < Date.now() + 60 * 60 * 1000) {
+              //   //   this.alertMessage('开区时间必须至少是当前时间1小时之后', 'error');
+              //   //   return false
+              //   // }
+              //   setOpenPlan(plan).then(res => {
+              //     if (res.status === 204) {
+              //       this.alertMessage('该区已开服，请重新查询区服列表,', 'error');
+              //       return false
+              //     }
+              //     let data = res.data;
+              //     plan.planned = true;
+              //     // 填充表单
+              //     // plan.open_time = data.find(item => item.id === plan.id).open_time * 1000;
+              //     console.log(data)
+              //     this.alertMessage('设置开区计划成功', 'success');
+              //   }).catch(error => {
+              //     this.alertMessage('设置开区计划失败', 'error');
+              //   });
+              // } else {
+              //   this.alertMessage('开区时间和人数上限不能都为空', 'error');
+              //   return false
+              // }
+            }).catch(() => {
+
+            });
+          } else {
+            // console.log('error submit!!');
+            return false;
+          }
+        });
       },
       // 是否推荐格式化
       serverSuggestFormatter(row, column, cellValue, index) {
         let text = '';
         switch (cellValue) {
           case 0:
-            text = '否';
+            text = '不推荐';
             break;
           case 1:
-            text = '是';
+            if (row.server_weight !== null && row.server_weight !== '') {
+              text = '权重推荐';
+            } else {
+              text = '手动推荐';
+            }
             break;
           default:
             text = '未知';
@@ -277,7 +356,7 @@
       getChannelList().then(res => {
         this.channelOptions = res.data;
       }).catch(error => {
-        console.log(error)
+        // console.log(error)
       });
     }
   }

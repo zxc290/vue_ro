@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="float: left">
     <el-form ref="queryForm" :inline="true" :model="queryForm" :rules="queryFormRules">
       <el-form-item label="渠道" prop="cid">
         <el-select v-model="queryForm.cid" clearable placeholder="请选择游戏渠道" @change="handleChangeChannel">
@@ -81,7 +81,7 @@
       <!--<el-form-item label="同步到区">-->
       <!--<el-switch v-model="planForm.by_zone"></el-switch>-->
       <!--</el-form-item>-->
-    <el-form-item>
+    <el-form-item style="float: left">
       <el-button type="primary" @click="addPlan">新增计划</el-button>
       <!--<el-button type="primary" @click="submitForm('planForm')">保存</el-button>-->
     </el-form-item>
@@ -188,8 +188,8 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
       },
       // 新增计划
       addPlan() {
-        console.log(this.planForm.plans)
-        console.log(this.zoneOptions)
+        // console.log(this.planForm.plans)
+        // console.log(this.zoneOptions)
         // 没有可选配置区
         if (this.planForm.plans.length >= this.zoneOptions.length) {
           this.alertMessage('已无可设置计划的区服', 'warning')
@@ -202,11 +202,8 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
               return false
             }
           }
-
-
-
-          let plan = this.zoneOptions.filter(item => !(item.open_time || item.max_user))[0]
-          console.log(this.planForm)
+          let plan = this.zoneOptions.filter(item => !(item.open_time || item.max_user))[0];
+          // console.log(this.planForm)
           // let selectedArray = this.planForm.plans.map(item => item.id);
           // console.log(selectedArray)
           this.planForm.plans.push({
@@ -255,7 +252,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
                   plan.planned = true;
                   // 填充表单
                   // plan.open_time = data.find(item => item.id === plan.id).open_time * 1000;
-                  console.log(data)
+                  // console.log(data)
                   this.alertMessage('设置开区计划成功', 'success');
                 }).catch(error => {
                   this.alertMessage('设置开区计划失败', 'error');
@@ -268,14 +265,14 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
 
             });
           } else {
-            console.log('error submit!!');
+            // console.log('error submit!!');
             return false;
           }
         });
       },
       // 移除计划
       removePlan(plan) {
-        console.log(plan)
+        // console.log(plan)
         this.$confirm('删除计划后无法恢复, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -296,7 +293,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
         // }
       },
       handleChangeZone(plan) {
-        console.log(plan)
+        // console.log(plan)
         if (this.planForm.plans.filter(item => item.id === plan.id).length > 1) {
           this.alertMessage('当前区服已存在计划任务，无法重复创建', 'error')
           plan.id = '';
@@ -310,7 +307,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
       handleChangeOpenType(plan) {
         if (plan.open_type === 1) {
           plan.open_time = plan.open_time ? plan.open_time : 0;
-          console.log(plan.open_time)
+          // console.log(plan.open_time)
           // this.planForm.plans.find(item => item.id === plan.id).open_time = 0;
         } else if (plan.open_type === 2) {
           plan.max_user = plan.max_user ? plan.max_user : 0;
@@ -325,8 +322,9 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
         this.$refs[formName].validate((valid) => {
           if (valid) {
             getServerManagementList(this.queryForm).then(res => {
-              this.zoneOptions = res.data;
-              console.log(this.zoneOptions)
+              let data = res.data;
+              this.zoneOptions = data.filter(item => item.server_statu > 200);
+              // console.log(this.zoneOptions)
               // this.zoneOptions = data.map(item => {
               //   return item;
               // });
@@ -354,9 +352,9 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
                   )
                 }
               });
-              console.log(this.planForm.plans)
+              // console.log(this.planForm.plans)
             }).catch(error => {
-              console.log(error)
+              // console.log(error)
             });
             // console.log(this.planForm.plans)
           } else {
@@ -368,9 +366,9 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
         this.$refs[formName].validate((valid) => {
           if (valid) {
             alert('submit!');
-            console.log(this[formName])
+            // console.log(this[formName])
           } else {
-            console.log('error submit!!');
+            // console.log('error submit!!');
             return false;
           }
         });
@@ -395,7 +393,7 @@ import { getServerManagementList, getChannelList, getAppPackageList, setOpenPlan
       //   console.log(error)
       // });
     }).catch(error => {
-      console.log(error)
+      // console.log(error)
     });
   }
   }
