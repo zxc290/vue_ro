@@ -88,7 +88,7 @@
               }
               this.logining = false;
             }).catch(error => {
-
+              console.log(error)
             });
           } else {
             return false;

@@ -62,6 +62,11 @@
         prop="server_weight"
         align="center">
       </el-table-column>
+      <el-table-column
+        label="权重过期时间"
+        prop="weight_deadline"
+        align="center">
+      </el-table-column>
       <!--<el-table-column-->
         <!--label="推荐类型"-->
         <!--prop="server_suggest"-->
@@ -98,7 +103,7 @@
       </el-table-column>
     </el-table>
     <el-dialog title="多区权重推荐设置" :visible.sync="multiRecommendFormVisible" width="30%" center>
-      <el-form ref="multiRecommendForm" :model="multiRecommendForm" :label-position="multiRecommendFormLabelPosition" label-width="100px">
+      <el-form ref="multiRecommendForm" :model="multiRecommendForm" :label-position="multiRecommendFormLabelPosition" label-width="120px">
         <div v-for="(zone, index) in multiRecommendForm.zones" :key="zone.id">
           <!--<el-form-item label="id">-->
           <!--<el-input readonly v-model="plan.id"></el-input>-->
@@ -120,6 +125,17 @@
             <el-input v-model.number="zone.server_weight" placeholder="服务器权重数1~9"></el-input>
           </el-form-item>
         </div>
+        <el-form-item label="权重过期时间"  :rules="[
+            { required: true, message: '权重过期时间不能为空' }
+          ]">
+          <el-date-picker
+            v-model="multiRecommendForm.weight_deadline"
+            type="datetime"
+            placeholder="选择权重过期时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            :picker-options="pickerOptions">
+          </el-date-picker>
+        </el-form-item>
         <el-form-item>
            <el-button type="primary" @click.prevent="setWeight('multiRecommendForm')">确定</el-button>
         </el-form-item>
@@ -179,8 +195,16 @@
           appid: '',
           zones: [
 
-          ]
+          ],
+          weight_deadline:'',
         },
+        // 权重过期时间选择范围
+        pickerOptions: {
+          disabledDate(time) {
+            let nowDate = new Date();
+            return time.getTime() < new Date(nowDate.setDate(nowDate.getDate()));
+          }
+        }
       }
     },
     methods: {
@@ -273,7 +297,7 @@
           this.alertMessage('多区推荐至少需要勾选2个区', 'error')
         } else {
           this.multiRecommendForm.zones = [];
-          this.multiSelectedZone.map(item => this.multiRecommendForm.zones.push({'id': item.id, 'zonename': item.zonename, 'server_weight': item.server_weight}))
+          this.multiSelectedZone.map(item => this.multiRecommendForm.zones.push({'id': item.id, 'zonename': item.zonename, 'server_weight': item.server_weight, 'weight_deadline': item.weight_deadline}));
           // this.multiRecommendForm.zones = this.multiSelectedZone;
           this.multiRecommendFormVisible = true;
           // console.log(this.multiRecommendForm)

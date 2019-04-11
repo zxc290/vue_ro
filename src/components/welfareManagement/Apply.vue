@@ -326,6 +326,19 @@
         } else if (cellValue === 2) {
           return '未通过';
         }
+      },
+
+      click1() {
+        var that=this;
+        var succes=function () {
+
+          that
+        }
+        var errr=function () {
+
+        }
+
+        this.$http.get(success,errr)
       }
     },
     created() {

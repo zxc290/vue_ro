@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 
-let base = 'http://127.0.0.1:8000';
-// let base = 'http://data.7cool.xgd666.com:10050';
+// let base = 'http://127.0.0.1:8000';
+let base = 'http://data.7cool.xgd666.com:10050';
 
 // 请求登录
 export const login = params => {

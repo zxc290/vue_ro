@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-header>
+    <el-header style="background-color:#246DB8;color:#FFFFFF">
       <el-row>
         <el-col><h3>Ro运营后台管理</h3></el-col>
       </el-row>
@@ -8,7 +8,6 @@
     <el-container>
       <el-aside width="300px">
         <el-col>
-          <h3>导航菜单</h3>
           <el-menu
             default-active="1"
             class="el-menu-vertical-demo"
@@ -97,6 +96,6 @@
   }
 </script>
 
-<style scoped>
+<style>
 
 </style>
